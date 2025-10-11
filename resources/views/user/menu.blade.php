@@ -31,7 +31,7 @@
         currentTab: 'home',
         switchTab(tab) {
             this.currentTab = tab;
-            document.querySelectorAll('#homeScreen, #cartScreen, #profileScreen').forEach(screen => screen.classList.add('hidden'));
+            document.querySelectorAll('#homeScreen, #cartScreen').forEach(screen => screen.classList.add('hidden'));
             document.getElementById(tab + 'Screen').classList.remove('hidden');
         }
     }">
@@ -228,59 +228,6 @@
                 <span class="text-xs text-gray-500">Cart</span>
                 <span class="absolute -top-1 right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" x-show="cartCount > 0" x-text="cartCount"></span>
             </button>
-            <button @click="switchTab('profile')" class="nav-item flex flex-col items-center gap-1" :class="{ 'active': currentTab === 'profile' }">
-                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                </svg>
-                <span class="text-xs text-gray-500">Profile</span>
-            </button>
-        </div>
-
-        <div id="profileScreen" class="hidden pb-20">
-            <div class="bg-gradient-to-br from-orange-600 to-red-600 p-6 text-white">
-                <h1 class="text-2xl font-bold mb-2">Profile</h1>
-                <div class="flex items-center gap-4 mt-6">
-                    <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center text-3xl">👤</div>
-                    @if ($customer)
-                        <div>
-                            <h2 class="text-xl font-bold">{{ $customer->name }}</h2>
-                            <p class="text-orange-100">{{ $customer->phone }}</p>
-                        </div>
-                    @else
-                        <div>
-                            <h2 class="text-xl font-bold">Guest</h2>
-                            <p class="text-orange-100">Belum login</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-            <div class="p-4 space-y-4">
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <h3 class="font-bold text-gray-900 p-4 border-b">Informasi Pesanan</h3>
-                    <div class="p-4 space-y-3">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Total Pesanan Hari Ini</span>
-                            <span class="font-semibold">{{ $orderCount }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Status</span>
-                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">Aktif</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <h3 class="font-bold text-gray-900 p-4 border-b">Menu Favorit</h3>
-                    <div class="p-4">
-                        <p class="text-gray-500 text-sm text-center py-4">Belum ada menu favorit</p>
-                    </div>
-                </div>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="w-full bg-red-50 text-red-600 py-3 rounded-xl font-semibold hover:bg-red-100 transition-colors">
-                        Akhiri Sesi
-                    </button>
-                </form>
-            </div>
         </div>
     </div>
 
@@ -332,7 +279,7 @@
                     this.currentTab = tab;
                     document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
                     document.querySelectorAll('.nav-item')[tab === 'home' ? 0 : tab === 'cart' ? 1 : 2].classList.add('active');
-                    document.querySelectorAll('#homeScreen, #cartScreen, #profileScreen').forEach(screen => screen.classList.add('hidden'));
+                    document.querySelectorAll('#homeScreen, #cartScreen').forEach(screen => screen.classList.add('hidden'));
                     document.getElementById(tab + 'Screen').classList.remove('hidden');
                 }
             });
