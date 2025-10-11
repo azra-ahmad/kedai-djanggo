@@ -17,7 +17,7 @@ class MenuController extends Controller
         // Ambil data customer kalau ada
         $customer = null;
         if ($customer_id) {
-            $customer = \App\Models\Customer::find($customer_id);
+            $customer = Customer::find($customer_id);
         }
 
         // Ambil total order hari ini

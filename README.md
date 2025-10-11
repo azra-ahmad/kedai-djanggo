@@ -12,7 +12,6 @@ A simple **Laravel-based coffee shop ordering system** with user-friendly featur
 * **User Authentication** — Login and logout functionality using Laravel Breeze
 * **Menu Display** — Browse categories (Kopi, Minuman, Makanan, Cemilan) with popular items
 * **Cart Management** — Add, update, and view items in the cart with dynamic pricing
-* **Profile Section** — Display customer info and order history
 * **Responsive Design** — Mobile-friendly interface with a bottom navigation bar
 
 ---
@@ -78,7 +77,7 @@ A simple **Laravel-based coffee shop ordering system** with user-friendly featur
 ## 💡 Usage
 
 * Fill the form to start ordering
-* Navigate using **Home**, **Cart**, and **Profile** tabs
+* Navigate using **Home**, **Cart** tabs
 * Add items to cart and proceed to checkout
 
 ---

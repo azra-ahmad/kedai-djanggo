@@ -23,22 +23,25 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-gray-50" x-data="{
-        cart: @json($cart),
-        currentCategory: 'all',
-        detailModal: false,
-        currentProduct: {},
-        cartCount: @json(array_sum(array_column($cart, 'quantity'))),
-        currentTab: 'home',
-        switchTab(tab) {
-            this.currentTab = tab;
-            document.querySelectorAll('#homeScreen, #cartScreen').forEach(screen => screen.classList.add('hidden'));
-            document.getElementById(tab + 'Screen').classList.remove('hidden');
-        }
-    }">
+    cart: @json($cart),
+    currentCategory: 'all',
+    detailModal: false,
+    currentProduct: {},
+    cartCount: @json(array_sum(array_column($cart, 'quantity'))),
+    currentTab: 'home',
+    switchTab(tab) {
+        this.currentTab = tab;
+        this.detailModal = false; // Reset modal saat ganti tab
+        this.currentProduct = {}; // Reset product saat ganti tab
+        document.querySelectorAll('#homeScreen, #cartScreen').forEach(screen => screen.classList.add('hidden'));
+        document.getElementById(tab + 'Screen').classList.remove('hidden');
+    }
+}">
     <div id="mainApp">
         <div id="homeScreen" class="pb-20">
             <div class="bg-white px-4 pt-4 pb-3 sticky top-0 z-10 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
+                    <button @click="logout()" class="text-sm text-red-600 font-semibold hover:underline">Keluar</button>
                     <div>
                         <h1 class="text-2xl font-bold text-gray-900">Kedai Djanggo</h1>
                             <p class="text-sm text-gray-500">
@@ -268,6 +271,16 @@
                     body: JSON.stringify({ menu_id: menuId, quantity: delta })
                 });
             }
+        }
+
+        function logout() {
+            fetch('{{ route('logout') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(() => window.location.href = '{{ route('user.form') }}');
         }
 
         document.addEventListener('alpine:init', () => {

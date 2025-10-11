@@ -15,23 +15,26 @@ class OrderController extends Controller
 {
     public function showForm()
     {
+        if (session()->has('customer_id')) {
+            return redirect()->route('menu.index');
+        }
+        
         return view('user.form');
     }
 
     public function submitIdentity(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:100',
             'phone' => 'required|string|max:20',
         ]);
 
-        $customer = Customer::create([
-            'name' => $request->name,
-            'phone' => $request->phone,
-        ]);
+        $customer = Customer::firstOrCreate(
+            ['phone' => $validated['phone']],
+            ['name' => $validated['name']]
+        );
 
-        Session::put('customer_id', $customer->id);
-
+        session(['customer_id' => $customer->id]);
         return redirect()->route('menu.index');
     }
 
