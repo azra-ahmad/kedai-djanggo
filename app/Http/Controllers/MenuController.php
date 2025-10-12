@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Menu;
 use App\Models\Customer;
+use App\Models\Order;
 use Illuminate\Http\Request;
 
 class MenuController extends Controller
@@ -20,14 +21,8 @@ class MenuController extends Controller
             $customer = Customer::find($customer_id);
         }
 
-        // Ambil total order hari ini
-        $orderCount = 0;
-        if ($customer_id) {
-            $orderCount = \App\Models\Order::where('customer_id', $customer_id)
-                ->whereDate('created_at', today())
-                ->count();
-        }
+        $orders = Order::where('customer_id', $customer_id)->with('orderItems.menu')->get();
 
-        return view('user.menu', compact('menus', 'cart', 'customer', 'orderCount'));
+        return view('user.menu', compact('menus', 'cart', 'customer', 'orders'));
     }
 }
