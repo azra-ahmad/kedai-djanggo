@@ -188,11 +188,6 @@
                         Batalkan Pesanan
                     </button>
                 </form>
-                @if(config('app.env') !== 'production')
-                    <button onclick="simulatePayment()" class="block w-full bg-green-600 text-white py-3 rounded-xl font-bold shadow-lg text-center mb-2">
-                        💰 Simulasi Pembayaran Berhasil (Dev Only)
-                    </button>
-                @endif
             @endif
             <a href="{{ route('menu.index') }}" class="block w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg text-center">
                 Kembali ke Menu
