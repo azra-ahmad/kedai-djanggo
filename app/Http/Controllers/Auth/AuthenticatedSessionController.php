@@ -28,7 +28,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Redirect based on user role
+        if (auth()->user()->role === 'admin') {
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
+        return redirect()->intended(route('menu.index'));
     }
 
     /**
@@ -36,11 +41,19 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Check if user is admin
+        $isAdmin = auth()->check() && auth()->user()->role === 'admin';
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
+
+        // Redirect based on previous role
+        if ($isAdmin) {
+            return redirect('/login');
+        }
 
         return redirect('/');
     }

@@ -21,9 +21,32 @@ Route::post('/order/{order_id}/update-payment', [OrderController::class, 'update
 Route::post('/midtrans/notification', [OrderController::class, 'notificationHandler'])->name('midtrans.notification');
 Route::get('/orders', [OrderController::class, 'orders'])->name('orders.index');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    Route::post('/admin/order/{id}/assign', [AdminController::class, 'assignToSelf'])->name('admin.assign');
-    Route::post('/admin/order/{id}/complete', [AdminController::class, 'completeOrder'])->name('admin.complete');
-    Route::get('/admin/order/{id}/struk', [AdminController::class, 'generateStruk'])->name('admin.struk');
+// Admin Routes - Protected dengan middleware auth + admin check
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    
+    // Orders Management
+    Route::get('/orders', [AdminController::class, 'orders'])->name('orders');
+    Route::post('/order/{id}/assign', [AdminController::class, 'assignToSelf'])->name('assign');
+    Route::post('/order/{id}/complete', [AdminController::class, 'completeOrder'])->name('complete');
+    Route::get('/order/{id}/struk', [AdminController::class, 'generateStruk'])->name('struk');
+    
+    // Menu CRUD
+    Route::get('/menu', [AdminController::class, 'menuIndex'])->name('menu.index');
+    Route::get('/menu/create', [AdminController::class, 'menuCreate'])->name('menu.create');
+    Route::post('/menu', [AdminController::class, 'menuStore'])->name('menu.store');
+    Route::get('/menu/{id}/edit', [AdminController::class, 'menuEdit'])->name('menu.edit');
+    Route::put('/menu/{id}', [AdminController::class, 'menuUpdate'])->name('menu.update');
+    Route::delete('/menu/{id}', [AdminController::class, 'menuDestroy'])->name('menu.destroy');
+    
+    // Financial Report
+    Route::get('/financial', [AdminController::class, 'financialReport'])->name('financial');
+
+    // Profile
+    Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
+    Route::put('/profile', [AdminController::class, 'updateProfile'])->name('profile.update');
+    
 });
+
+// Auth Routes (jangan lupa include)
+require __DIR__.'/auth.php';

@@ -1,77 +1,77 @@
+# ☕ Kedai Djanggo - POS System
 
----
+Modern Point of Sale system untuk kedai/warung kopi dengan fitur:
+- 🛒 Customer ordering system dengan floating cart
+- 💳 Payment gateway (Midtrans)
+- 📊 Admin dashboard dengan analytics
+- 🍽️ Menu management (CRUD)
+- 💰 Financial reporting
+- 👥 Customer management
 
-# ☕ Kedai Djanggo
-
-A simple **Laravel-based coffee shop ordering system** with user-friendly features for browsing menus, managing carts, and viewing profiles.
-
----
-
-## 🚀 Features
-
-* **User Authentication** — Login and logout functionality using Laravel Breeze
-* **Menu Display** — Browse categories (Kopi, Minuman, Makanan, Cemilan) with popular items
-* **Cart Management** — Add, update, and view items in the cart with dynamic pricing
-* **Responsive Design** — Mobile-friendly interface with a bottom navigation bar
-
----
-
-## 🛠️ Technologies
-
-* **Laravel**: v12.33.0 (Backend framework)
-* **PHP**: v8.3.16
-* **Alpine.js**: v3.x.x (Frontend interactivity)
-* **Tailwind CSS**: For styling
-* **MySQL**: Database management
-
----
+## 🛠️ Tech Stack
+- Laravel 12
+- Alpine.js 3
+- Tailwind CSS
+- Chart.js
+- Midtrans Payment Gateway
 
 ## ⚙️ Installation
 
-1. **Clone the repository**
+1. Clone repo
+```bash
+git clone https://github.com/yourusername/kedai-djanggo.git
+cd kedai-djanggo
+```
 
-   ```bash
-   git clone https://github.com/azra-ahmad/kedai-djanggo.git
-   cd kedai-djanggo
-   ```
+2. Install dependencies
+```bash
+composer install
+npm install && npm run build
+```
 
-2. **Install dependencies**
+3. Setup environment
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-   ```bash
-   composer install
-   npm install
-   ```
+4. Configure database & Midtrans credentials in `.env`
 
-3. **Copy environment file**
-
-   ```bash
-   cp .env.example .env
-   ```
-
-   Then configure your database settings inside `.env`.
-
-4. **Generate app key**
-
-   ```bash
-   php artisan key:generate
-   ```
-
-5. **Start the development servers**
-
-   ```bash
-   php artisan serve
-   npm run dev
-   ```
+5. Start server
+```bash
+php artisan serve
+npm run dev
+```
 
 6. Access the app at:
-   👉 [http://127.0.0.1:8000](http://127.0.0.1:8000)
+```bash
+👉 User: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+👉 Admin: [http://127.0.0.1:8000/login](http://127.0.0.1:8000/login)
+```
 
----
+## Default Credentials
 
-## 💡 Usage
+**🧑‍💻 Admin:**
+- Email: admin@kedai.com
+- Password: admin123
 
-* Fill the form to start ordering
-* Navigate using **Home**, **Cart** tabs
-* Add items to cart and proceed to checkout
+## 🚀 Features
 
----
+### Customer Side
+- Identity form untuk ordering
+- Menu browsing dengan kategori
+- Floating cart (GoFood-style)
+- Midtrans payment integration
+- Order status tracking
+- Order history
+
+### Admin Side
+- Dashboard dengan real-time stats
+- Order management
+- Menu CRUD
+- Financial reports dengan charts
+- Customer list
+- Receipt/Struk generator
+
+## License
+MIT

@@ -9,7 +9,16 @@ class OrderItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['order_id', 'menu_id', 'jumlah', 'subtotal'];
+    protected $fillable = [
+        'order_id',
+        'menu_id',
+        'jumlah',
+        'subtotal',
+    ];
+
+    protected $casts = [
+        'subtotal' => 'decimal:2',
+    ];
 
     public function order()
     {

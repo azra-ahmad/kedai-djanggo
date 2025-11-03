@@ -10,7 +10,13 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'customer_id', 'admin_id', 'total_harga', 'metode_pembayaran', 'status', 'snap_token', 'midtrans_order_id'
+        'customer_id',
+        'admin_id',
+        'total_harga',
+        'metode_pembayaran',
+        'status',
+        'snap_token',
+        'midtrans_order_id',
     ];
 
     public function customer()
