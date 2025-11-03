@@ -9,6 +9,12 @@
     <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
     <style>
         body { font-family: 'Poppins', sans-serif; }
+        .bg-orange-500 { background-color: #f97316; }
+        .text-orange-500 { color: #f97316; }
+        .border-t-thick { border-top: 2px solid #e5e7eb; }
+        .rounded-3xl { border-radius: 1.5rem; }
+        .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .hover\:bg-orange-600:hover { background-color: #ea580c; } /* Hover lebih gelap */
     </style>
 </head>
 <body class="bg-gray-50">
@@ -25,35 +31,72 @@
             </div>
         </div>
 
-        <div class="p-4">
+        <div class="p-4 space-y-4">
+            <!-- Order Items Card (Grouped: main item + extras dengan indent & harga per baris) -->
+            <div class="bg-white rounded-3xl shadow-sm p-6">
+                @foreach ($cart as $item)
+                    <div class="flex gap-4 items-start mb-6 last:mb-0">
+                        <!-- Item Image (gunakan placeholder atau asset nyata) -->
+                        <div class="w-20 h-20 bg-orange-100 rounded-2xl flex-shrink-0 overflow-hidden">
+                            <img src="{{ $item['image'] ?? 'https://via.placeholder.com/80?text=Item' }}" alt="{{ $item['name'] }}" class="w-full h-full object-cover">
+                        </div>
+                        
+                        <!-- Item Details -->
+                        <div class="flex-1">
+                            <h3 class="font-bold text-lg text-gray-900 mb-1">{{ $item['name'] }}</h3>
+                            <div class="text-sm text-gray-500 space-y-1">
+                                <p>{{ $item['quantity'] }}x {{ $item['name'] }}</p>
+                                @if(!empty($item['extras']))
+                                    @foreach($item['extras'] as $extra)
+                                        <p class="pl-6">{{ $extra['quantity'] }}x {{ $extra['name'] }}</p>
+                                    @endforeach
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Prices aligned per line -->
+                        <div class="text-right text-sm">
+                            <p class="font-bold text-gray-900">Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</p>
+                            @if(!empty($item['extras']))
+                                @foreach($item['extras'] as $extra)
+                                    <p class="text-gray-500">Rp {{ number_format($extra['price'] * $extra['quantity'], 0, ',', '.') }}</p>
+                                @endforeach
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+
             <!-- Order Summary -->
-            <div class="bg-white rounded-2xl shadow-sm p-6 mb-4">
+            <div class="bg-white rounded-3xl shadow-sm p-6">
                 <h2 class="text-lg font-bold text-gray-900 mb-4">Ringkasan Pesanan</h2>
                 
-                <div class="space-y-3 mb-4">
-                    @foreach ($cart as $item)
-                        <div class="flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="font-semibold text-gray-900">{{ $item['name'] }}</p>
-                                <p class="text-sm text-gray-500">{{ $item['quantity'] }}x Rp {{ number_format($item['price'], 0, ',', '.') }}</p>
-                            </div>
-                            <p class="font-semibold text-gray-900">Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</p>
-                        </div>
-                    @endforeach
+                <div class="space-y-3 mb-6">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Food Total</span>
+                        <span class="font-medium">Rp {{ number_format($subtotal ?? $total, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Delivery</span>
+                        <span class="font-medium">Rp {{ number_format($delivery ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Discount</span>
+                        <span class="font-medium text-green-600">-Rp {{ number_format($discount ?? 0, 0, ',', '.') }}</span>
+                    </div>
                 </div>
 
-                <div class="border-t border-gray-200 pt-4 space-y-2">
-                    <div class="flex justify-between">
-                        <span class="font-bold text-gray-900">Total Pembayaran</span>
-                        <span class="font-bold text-xl text-orange-600">Rp {{ number_format($total, 0, ',', '.') }}</span>
-                    </div>
+                <div class="flex justify-between items-center pt-4 border-t-thick">
+                    <span class="text-lg font-bold text-gray-900">Total Pembayaran</span>
+                    <span class="text-2xl font-bold text-orange-500">Rp {{ number_format($total, 0, ',', '.') }}</span>
                 </div>
             </div>
 
             <!-- Payment Info -->
             <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-4">
                 <div class="flex items-start gap-3">
-                    <svg class="w-6 h-6 text-orange-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6 text-orange-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <div>
@@ -64,7 +107,7 @@
             </div>
 
             <!-- Order ID Info -->
-            <div class="bg-white rounded-2xl shadow-sm p-4 mb-4">
+            <div class="bg-white rounded-3xl shadow-sm p-4">
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600">ID Pesanan</span>
                     <span class="font-bold text-gray-900">{{ $order->midtrans_order_id }}</span>
@@ -73,63 +116,76 @@
         </div>
 
         <!-- Fixed Payment Button -->
-        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
-            <button id="pay-button" class="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg">
-                Bayar Sekarang
+        <div class="fixed bottom-0 left-0 right-0 bg-white px-4 py-4 shadow-lg">
+            <button id="pay-button" class="w-full bg-orange-500 text-white py-4 rounded-full font-bold text-base shadow-lg hover:bg-orange-600 transition">
+                Process Order
             </button>
         </div>
     </div>
 
+    <!-- Script Midtrans + Debug -->
     <script>
-        document.getElementById('pay-button').addEventListener('click', function() {
-            snap.pay('{{ $order->snap_token }}', {
-                onSuccess: function(result) {
-                    console.log('Payment success:', result);
-                    // Update status langsung
-                    fetch('{{ route('order.updatePayment', $order->id) }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            status: 'paid'
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Payment status updated:', data);
-                        // Clear cart setelah payment berhasil
-                        return fetch('{{ route('cart.clear') }}', {
+        window.addEventListener('load', function() {
+            if (typeof snap === 'undefined') {
+                console.error('Midtrans Snap.js gagal load!');
+                alert('Midtrans tidak tersedia. Periksa koneksi atau konfigurasi.');
+                return;
+            }
+
+            const snapToken = '{{ $order->snap_token }}';
+            console.log('Snap Token:', snapToken);
+            if (!snapToken || snapToken.trim() === '') {
+                console.error('Snap token kosong!');
+                document.getElementById('pay-button').disabled = true;
+                document.getElementById('pay-button').textContent = 'Token Tidak Tersedia';
+                return;
+            }
+
+            document.getElementById('pay-button').addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Tombol diklik, memanggil snap.pay...');
+
+                snap.pay(snapToken, {
+                    onSuccess: function(result) {
+                        console.log('Payment success:', result);
+                        fetch('{{ route('order.updatePayment', $order->id) }}', {
                             method: 'POST',
                             headers: {
+                                'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            }
+                            },
+                            body: JSON.stringify({ status: 'paid' })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Status updated:', data);
+                            return fetch('{{ route('cart.clear') }}', {
+                                method: 'POST',
+                                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                            });
+                        })
+                        .then(() => {
+                            window.location.href = '{{ route('order.status', $order->id) }}';
+                        })
+                        .catch(err => {
+                            console.error('Update error:', err);
+                            window.location.href = '{{ route('order.status', $order->id) }}';
                         });
-                    })
-                    .then(() => {
-                        console.log('Cart cleared, redirecting...');
+                    },
+                    onPending: function(result) {
+                        console.log('Pending:', result);
                         window.location.href = '{{ route('order.status', $order->id) }}';
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
+                    },
+                    onError: function(result) {
+                        console.error('Error:', result);
+                        alert('Pembayaran gagal: ' + (result.status_message || 'Coba lagi'));
                         window.location.href = '{{ route('order.status', $order->id) }}';
-                    });
-                },
-                onPending: function(result) {
-                    console.log('Payment pending:', result);
-                    window.location.href = '{{ route('order.status', $order->id) }}';
-                },
-                onError: function(result) {
-                    console.error('Payment error:', result);
-                    alert('Pembayaran gagal, silakan coba lagi');
-                    window.location.href = '{{ route('order.status', $order->id) }}';
-                },
-                onClose: function() {
-                    console.log('Payment popup closed');
-                    // User cancel payment, redirect back to status
-                    window.location.href = '{{ route('order.status', $order->id) }}';
-                }
+                    },
+                    onClose: function() {
+                        console.log('Popup ditutup');
+                        window.location.href = '{{ route('order.status', $order->id) }}';
+                    }
+                });
             });
         });
     </script>

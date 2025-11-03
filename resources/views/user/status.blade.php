@@ -189,7 +189,7 @@
                     </button>
                 </form>
             @endif
-            <a href="{{ route('menu.index') }}" class="block w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg text-center">
+            <a href="{{ route('menu.index') }}" class="block w-full  bg-orange-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg text-center">
                 Kembali ke Menu
             </a>
         </div>
