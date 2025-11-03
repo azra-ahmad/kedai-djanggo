@@ -56,20 +56,14 @@ A simple **Laravel-based coffee shop ordering system** with user-friendly featur
    php artisan key:generate
    ```
 
-5. **Run migrations and seed data**
-
-   ```bash
-   php artisan migrate --seed
-   ```
-
-6. **Start the development servers**
+5. **Start the development servers**
 
    ```bash
    php artisan serve
    npm run dev
    ```
 
-7. Access the app at:
+6. Access the app at:
    👉 [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ---
