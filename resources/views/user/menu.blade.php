@@ -890,7 +890,7 @@
                 <div class="bg-gradient-to-br from-[#EBEBEB] via-white to-[#EBEBEB] rounded-3xl p-6 space-y-3 mb-6 border-2 border-[#EF7722] shadow-xl">
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-gray-900 text-lg">Total Pembayaran</span>
-                        <span class="font-bold text-3xl gradient-text" x-text="'Rp ' + total.toLocaleString('id-ID')"></span>
+                        <span class="font-bold text-3xl gradient-text" x-text="'Rp' + total.toLocaleString('id-ID')"></span>
                     </div>
                 </div>
 
