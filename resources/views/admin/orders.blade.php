@@ -1,151 +1,447 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orders Management - Kedai Djanggo</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
-        body { font-family: 'Poppins', sans-serif; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #fafafa 0%, #fff5ed 100%);
+        }
+
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -10px rgba(234, 88, 12, 0.15);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-down {
+            animation: slideDown 0.4s ease-out;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(234, 88, 12, 0.1);
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -15px rgba(234, 88, 12, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-primary:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 8px 25px -5px rgba(234, 88, 12, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .table-row {
+            transition: all 0.2s ease;
+        }
+
+        .table-row:hover {
+            background: linear-gradient(90deg, rgba(251, 146, 60, 0.03) 0%, transparent 100%);
+            transform: translateX(2px);
+        }
+
+        .status-badge {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            transition: left 0.5s;
+        }
+
+        .status-badge:hover::before {
+            left: 100%;
+        }
+
+        .tab-active {
+            position: relative;
+        }
+
+        .tab-active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: currentColor;
+            border-radius: 2px;
+        }
     </style>
 </head>
-<body class="bg-gray-50">
+
+<body>
     @include('admin.partials.sidebar')
-    
+
     <div class="ml-64 p-8">
         <!-- Header -->
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">Orders Management</h1>
-                <p class="text-gray-500">Manage all customer orders</p>
+        <div class="mb-8 animate-slide-down">
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <div>
+                            <h1 class="text-3xl font-black text-gray-900 tracking-tight"> Orders Management</h1>
+                            <p class="text-sm text-gray-500 font-medium mt-0.5">Manage and track all customer orders</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button class="flex items-center gap-2 glass-card text-gray-700 px-5 py-2.5 rounded-xl font-semibold hover-lift shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Export
+                    </button>
+                    <button class="flex items-center gap-2 btn-primary text-white px-5 py-2.5 rounded-xl font-bold shadow-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-4 gap-5">
+                <div class="stat-card glass-card rounded-2xl p-6 shadow-md">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                        </div>
+                        <span class="text-xs font-bold text-orange-600 bg-orange-50 px-3 py-1 rounded-lg">Total</span>
+                    </div>
+                    <h3 class="text-3xl font-black text-gray-900 mb-1">{{ $orders->total() }}</h3>
+                    <p class="text-sm text-gray-600 font-semibold">All Orders</p>
+                </div>
+
+                <div class="stat-card glass-card rounded-2xl p-6 shadow-md border-l-4 border-amber-400">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="text-3xl font-black text-amber-700 mb-1">{{ $orders->where('status', 'pending')->count() }}</h3>
+                    <p class="text-sm text-amber-600 font-semibold">Pending Orders</p>
+                </div>
+
+                <div class="stat-card glass-card rounded-2xl p-6 shadow-md border-l-4 border-emerald-400">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="text-3xl font-black text-emerald-700 mb-1">{{ $orders->where('status', 'paid')->count() }}</h3>
+                    <p class="text-sm text-emerald-600 font-semibold">Paid Orders</p>
+                </div>
+
+                <div class="stat-card glass-card rounded-2xl p-6 shadow-md border-l-4 border-blue-400">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="text-3xl font-black text-blue-700 mb-1">{{ $orders->where('status', 'done')->count() }}</h3>
+                    <p class="text-sm text-blue-600 font-semibold">Completed</p>
+                </div>
             </div>
         </div>
 
         <!-- Filter Tabs -->
-        <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+        <div class="glass-card rounded-2xl p-2 mb-6 shadow-md animate-slide-down">
             <div class="flex gap-2">
-                <a href="{{ route('admin.orders', ['status' => 'all']) }}" 
-                   class="px-4 py-2 rounded-lg font-semibold {{ $status == 'all' ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                <a href="{{ route('admin.orders', ['status' => 'all'] + request()->only('search')) }}"
+                    class="flex-1 text-center px-4 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 {{ $status == 'all' ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg tab-active' : 'text-gray-600 hover:bg-orange-50 hover:text-orange-600' }}">
                     All Orders
                 </a>
-                <a href="{{ route('admin.orders', ['status' => 'pending']) }}" 
-                   class="px-4 py-2 rounded-lg font-semibold {{ $status == 'pending' ? 'bg-yellow-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                <a href="{{ route('admin.orders', ['status' => 'pending'] + request()->only('search')) }}"
+                    class="flex-1 text-center px-4 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 {{ $status == 'pending' ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg tab-active' : 'text-gray-600 hover:bg-amber-50 hover:text-amber-600' }}">
                     Pending
                 </a>
-                <a href="{{ route('admin.orders', ['status' => 'paid']) }}" 
-                   class="px-4 py-2 rounded-lg font-semibold {{ $status == 'paid' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                <a href="{{ route('admin.orders', ['status' => 'paid'] + request()->only('search')) }}"
+                    class="flex-1 text-center px-4 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 {{ $status == 'paid' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg tab-active' : 'text-gray-600 hover:bg-emerald-50 hover:text-emerald-600' }}">
                     Paid
                 </a>
-                <a href="{{ route('admin.orders', ['status' => 'done']) }}" 
-                   class="px-4 py-2 rounded-lg font-semibold {{ $status == 'done' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                <a href="{{ route('admin.orders', ['status' => 'done'] + request()->only('search')) }}"
+                    class="flex-1 text-center px-4 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 {{ $status == 'done' ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg tab-active' : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600' }}">
                     Completed
                 </a>
-                <a href="{{ route('admin.orders', ['status' => 'failed']) }}" 
-                   class="px-4 py-2 rounded-lg font-semibold {{ $status == 'failed' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                <a href="{{ route('admin.orders', ['status' => 'failed'] + request()->only('search')) }}"
+                    class="flex-1 text-center px-4 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 {{ $status == 'failed' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg tab-active' : 'text-gray-600 hover:bg-red-50 hover:text-red-600' }}">
                     Failed
                 </a>
             </div>
         </div>
 
         @if(session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
-                {{ session('success') }}
+        <div class="glass-card border-l-4 border-emerald-500 text-emerald-800 px-6 py-4 rounded-2xl mb-6 shadow-md animate-slide-down">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <span class="font-semibold">{{ session('success') }}</span>
             </div>
+        </div>
         @endif
 
         <!-- Orders Table -->
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="glass-card rounded-2xl overflow-hidden shadow-md animate-slide-down">
+            <div x-data="{ search: '{{ request('search') }}', debounce: null }" x-init="
+                $watch('search', value => {
+                    clearTimeout(debounce)
+                    debounce = setTimeout(() => {
+                        const params = new URLSearchParams()
+                        if (value) params.set('search', value)
+                        @if(request('status') && request('status') !== 'all')
+                            params.set('status', '{{ request('status') }}')
+                        @endif
+                        window.location.search = params.toString()
+                    }, 500)
+                })
+            ">
+                <div class="p-6 border-b border-orange-100 bg-gradient-to-r from-orange-50/30 to-transparent">
+                    <div class="flex items-center justify-between gap-4">
+                        <div class="flex-1 max-w-md">
+                            <div class="relative">
+                                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <input
+                                    type="text"
+                                    x-model="search"
+                                    placeholder="Search by ID, customer name, phone..."
+                                    class="w-full pl-12 pr-4 py-3 bg-white border border-orange-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all font-medium text-sm shadow-sm">
+                            </div>
+                        </div>
+                        <button @click="search = ''; $nextTick(() => { window.location = '{{ route('admin.orders', ['status' => $status]) }}' })"
+                            class="flex items-center gap-2 px-5 py-3 bg-white hover:bg-orange-50 text-gray-700 rounded-xl font-semibold text-sm border border-orange-200 transition-all shadow-sm hover:shadow-md">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="overflow-x-auto">
                 <table class="w-full">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-gradient-to-r from-gray-50 to-orange-50/30">
                         <tr>
-                            <th class="text-left py-4 px-6 font-semibold text-gray-700">Order ID</th>
-                            <th class="text-left py-4 px-6 font-semibold text-gray-700">Customer</th>
-                            <th class="text-left py-4 px-6 font-semibold text-gray-700">Items</th>
-                            <th class="text-left py-4 px-6 font-semibold text-gray-700">Total</th>
-                            <th class="text-left py-4 px-6 font-semibold text-gray-700">Status</th>
-                            <th class="text-left py-4 px-6 font-semibold text-gray-700">Date</th>
-                            <th class="text-left py-4 px-6 font-semibold text-gray-700">Actions</th>
+                            <th class="text-left py-4 px-6 font-black text-gray-700 text-xs uppercase tracking-wider">Order ID</th>
+                            <th class="text-left py-4 px-6 font-black text-gray-700 text-xs uppercase tracking-wider">Customer</th>
+                            <th class="text-left py-4 px-6 font-black text-gray-700 text-xs uppercase tracking-wider">Items</th>
+                            <th class="text-left py-4 px-6 font-black text-gray-700 text-xs uppercase tracking-wider">Total</th>
+                            <th class="text-left py-4 px-6 font-black text-gray-700 text-xs uppercase tracking-wider">Status</th>
+                            <th class="text-left py-4 px-6 font-black text-gray-700 text-xs uppercase tracking-wider">Date</th>
+                            <th class="text-left py-4 px-6 font-black text-gray-700 text-xs uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
+                    <tbody class="divide-y divide-orange-100/50 bg-white">
                         @forelse($orders as $order)
-                            <tr class="hover:bg-gray-50">
-                                <td class="py-4 px-6">
-                                    <span class="font-mono text-sm font-semibold text-gray-900">{{ $order->midtrans_order_id }}</span>
-                                </td>
-                                <td class="py-4 px-6">
-                                    <div>
-                                        <p class="font-semibold text-gray-900">{{ $order->customer->name }}</p>
-                                        <p class="text-sm text-gray-500">{{ $order->customer->phone }}</p>
+                        <tr class="table-row">
+                            <td class="py-5 px-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center shadow-sm">
+                                        <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                        </svg>
                                     </div>
-                                </td>
-                                <td class="py-4 px-6">
+                                    <span class="font-mono text-sm font-bold text-gray-900">{{ $order->midtrans_order_id }}</span>
+                                </div>
+                            </td>
+                            <td class="py-5 px-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center shadow-md">
+                                        <span class="text-white font-bold text-sm">{{ strtoupper(substr($order->customer->name, 0, 2)) }}</span>
+                                    </div>
                                     <div>
-                                        <p class="font-semibold text-gray-900">{{ $order->orderItems->count() }} items</p>
-                                        <p class="text-xs text-gray-500">
+                                        <p class="font-bold text-gray-900 text-sm">{{ $order->customer->name }}</p>
+                                        <p class="text-xs text-gray-500 font-medium">{{ $order->customer->phone }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-5 px-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center shadow-sm">
+                                        <span class="text-gray-700 font-black text-sm">{{ $order->orderItems->count() }}</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-900 text-sm">{{ $order->orderItems->count() }} items</p>
+                                        <p class="text-xs text-gray-500 font-medium max-w-xs truncate">
                                             @foreach($order->orderItems->take(2) as $item)
-                                                {{ $item->menu->nama_menu }}{{ !$loop->last ? ', ' : '' }}
+                                            {{ $item->menu->nama_menu }}{{ !$loop->last ? ', ' : '' }}
                                             @endforeach
                                             @if($order->orderItems->count() > 2)
-                                                ...
+                                            +{{ $order->orderItems->count() - 2 }} more
                                             @endif
                                         </p>
                                     </div>
-                                </td>
-                                <td class="py-4 px-6">
-                                    <span class="font-bold text-gray-900">Rp {{ number_format($order->total_harga, 0, ',', '.') }}</span>
-                                </td>
-                                <td class="py-4 px-6">
-                                    <span class="px-3 py-1 rounded-full text-xs font-semibold
-                                        @if($order->status == 'pending') bg-yellow-100 text-yellow-800
-                                        @elseif($order->status == 'paid') bg-green-100 text-green-800
-                                        @elseif($order->status == 'done') bg-blue-100 text-blue-800
-                                        @else bg-red-100 text-red-800
+                                </div>
+                            </td>
+                            <td class="py-5 px-6">
+                                <div class="inline-block bg-gradient-to-br from-emerald-50 to-green-50 px-4 py-2 rounded-lg">
+                                    <p class="text-xs text-emerald-600 font-bold mb-0.5">Total</p>
+                                    <p class="font-black text-gray-900 text-base">Rp {{ number_format($order->total_harga, 0, ',', '.') }}</p>
+                                </div>
+                            </td>
+                            <td class="py-5 px-6">
+                                <span class="status-badge px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-2 shadow-sm
+                                        @if($order->status == 'pending') bg-gradient-to-r from-amber-100 to-amber-50 text-amber-700 border border-amber-300
+                                        @elseif($order->status == 'paid') bg-gradient-to-r from-emerald-100 to-emerald-50 text-emerald-700 border border-emerald-300
+                                        @elseif($order->status == 'done') bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 border border-blue-300
+                                        @else bg-gradient-to-r from-red-100 to-red-50 text-red-700 border border-red-300
                                         @endif">
-                                        {{ ucfirst($order->status) }}
+                                    <span class="w-2 h-2 rounded-full
+                                            @if($order->status == 'pending') bg-amber-500
+                                            @elseif($order->status == 'paid') bg-emerald-500
+                                            @elseif($order->status == 'done') bg-blue-500
+                                            @else bg-red-500
+                                            @endif">
                                     </span>
-                                </td>
-                                <td class="py-4 px-6">
-                                    <p class="text-sm text-gray-900">{{ $order->created_at->format('d M Y') }}</p>
-                                    <p class="text-xs text-gray-500">{{ $order->created_at->format('H:i') }}</p>
-                                </td>
-                                <td class="py-4 px-6">
-                                    <div class="flex gap-2">
-                                        @if($order->status == 'paid')
-                                            <form action="{{ route('admin.complete', $order->id) }}" method="POST">
-                                                @csrf
-                                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-sm font-semibold">
-                                                    Complete
-                                                </button>
-                                            </form>
-                                        @endif
-                                        <a href="{{ route('admin.struk', $order->id) }}" target="_blank" class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded-lg text-sm font-semibold">
-                                            Struk
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
+                                    {{ ucfirst($order->status) }}
+                                </span>
+                            </td>
+                            <td class="py-5 px-6">
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900">{{ $order->created_at->format('d M Y') }}</p>
+                                    <p class="text-xs text-gray-500 font-semibold">{{ $order->created_at->format('H:i') }} WIB</p>
+                                </div>
+                            </td>
+                            <td class="py-5 px-6">
+                                <div class="flex gap-2">
+                                    @if($order->status == 'paid')
+                                    <form action="{{ route('admin.complete', $order->id) }}" method="POST">
+                                        @csrf
+                                        <button class="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-2 rounded-xl text-xs font-bold hover-lift transition-all shadow-md">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Complete
+                                        </button>
+                                    </form>
+                                    @endif
+                                    <a href="{{ route('admin.struk', $order->id) }}" target="_blank" class="flex items-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black text-white px-4 py-2 rounded-xl text-xs font-bold hover-lift transition-all shadow-md">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        Receipt
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                         @empty
-                            <tr>
-                                <td colspan="7" class="py-12 text-center">
-                                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                                    </svg>
-                                    <p class="text-gray-500 font-semibold">No orders found</p>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td colspan="7" class="py-20 text-center">
+                                <div class="flex flex-col items-center justify-center">
+                                    <div class="w-20 h-20 bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl flex items-center justify-center mb-5 shadow-lg">
+                                        <svg class="w-10 h-10 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-lg font-black text-gray-900 mb-2">No Orders Found</h3>
+                                    <p class="text-sm text-gray-500 font-medium">There are no orders matching your criteria</p>
+                                </div>
+                            </td>
+                        </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
 
             <!-- Pagination -->
-            <div class="p-4 border-t">
-                {{ $orders->links() }}
+            <div class="px-6 py-4 border-t border-orange-100 bg-gradient-to-r from-gray-50 to-orange-50/30">
+                {{ $orders->appends(request()->query())->links() }}
             </div>
         </div>
     </div>
 </body>
+
 </html>

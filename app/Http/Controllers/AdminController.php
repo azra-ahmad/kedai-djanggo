@@ -17,80 +17,80 @@ class AdminController extends Controller
         // Filter by date range
         $startDate = $request->input('start_date', Carbon::now()->subDays(6)->format('Y-m-d'));
         $endDate = $request->input('end_date', Carbon::now()->format('Y-m-d'));
-        
+
         // Parse dates properly
         $start = Carbon::parse($startDate)->startOfDay();
         $end = Carbon::parse($endDate)->endOfDay();
-        
+
         // Statistics - Include 'done' status as well for completed orders
         $totalRevenue = Order::whereIn('status', ['paid', 'done'])
             ->whereBetween('created_at', [$start, $end])
             ->sum('total_harga');
-            
+
         $totalOrders = Order::whereBetween('created_at', [$start, $end])->count();
-        
+
         $pendingOrders = Order::where('status', 'pending')->count();
-        
+
         $completedOrders = Order::where('status', 'done')
             ->whereBetween('created_at', [$start, $end])
             ->count();
-        
+
         // Today's orders
         $todayOrders = Order::whereDate('created_at', Carbon::today())
             ->with(['customer', 'orderItems.menu'])
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
-        
+
         // Revenue chart data (last 7 days) - FIXED
         $revenueChartRaw = Order::whereIn('status', ['paid', 'done'])
             ->whereBetween('created_at', [$start, $end])
             ->select(
-                DB::raw('DATE(created_at) as date'), 
+                DB::raw('DATE(created_at) as date'),
                 DB::raw('SUM(total_harga) as revenue')
             )
             ->groupBy('date')
             ->orderBy('date', 'asc')
             ->get();
-        
+
         // Fill missing dates with zero revenue
         $revenueChart = [];
         $currentDate = Carbon::parse($start);
         $endDate = Carbon::parse($end);
-        
+
         while ($currentDate <= $endDate) {
             $dateStr = $currentDate->format('Y-m-d');
             $existingData = $revenueChartRaw->firstWhere('date', $dateStr);
-            
+
             $revenueChart[] = [
                 'date' => $dateStr,
                 'revenue' => $existingData ? (float) $existingData->revenue : 0
             ];
-            
+
             $currentDate->addDay();
         }
-        
+
         // Top selling items
         $topItems = OrderItem::join('menus', 'order_items.menu_id', '=', 'menus.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->whereIn('orders.status', ['paid', 'done'])
             ->whereBetween('orders.created_at', [$start, $end])
             ->select(
-                'menus.nama_menu', 
-                DB::raw('SUM(order_items.jumlah) as total_sold'), 
+                'menus.nama_menu',
+                DB::raw('SUM(order_items.jumlah) as total_sold'),
                 DB::raw('SUM(order_items.subtotal) as total_revenue')
             )
             ->groupBy('menus.id', 'menus.nama_menu')
             ->orderBy('total_sold', 'desc')
             ->limit(5)
             ->get();
-        
+
         // Recent customers
         $recentCustomers = Customer::withCount('orders')
             ->latest()
             ->limit(10)
             ->get();
-        
+
         return view('admin.dashboard', compact(
             'totalRevenue',
             'totalOrders',
@@ -104,34 +104,47 @@ class AdminController extends Controller
             'endDate'
         ));
     }
-    
+
     public function orders(Request $request)
     {
         $status = $request->input('status', 'all');
-        
+        $search = $request->input('search'); // Ambil input search
+
         $query = Order::with(['customer', 'orderItems.menu']);
-        
+
+        // Filter berdasarkan status
         if ($status !== 'all') {
             $query->where('status', $status);
         }
-        
-        $orders = $query->orderBy('created_at', 'desc')->paginate(20);
-        
+
+        // Filter berdasarkan pencarian
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('midtrans_order_id', 'like', "%{$search}%")
+                    ->orWhereHas('customer', function ($cq) use ($search) {
+                        $cq->where('name', 'like', "%{$search}%")
+                            ->orWhere('phone', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+
         return view('admin.orders', compact('orders', 'status'));
     }
-    
+
     public function assignToSelf($id)
     {
         $order = Order::findOrFail($id);
         $order->update(['admin_id' => auth()->id()]);
-        
+
         return back()->with('success', 'Order assigned to you');
     }
-    
+
     public function completeOrder($id)
     {
         $order = Order::findOrFail($id);
-        
+
         if ($order->status === 'paid') {
             $order->update([
                 'status' => 'done',
@@ -139,16 +152,16 @@ class AdminController extends Controller
             ]);
             return back()->with('success', 'Order marked as completed');
         }
-        
+
         return back()->with('error', 'Only paid orders can be completed');
     }
-    
+
     public function generateStruk($id)
     {
         $order = Order::with(['customer', 'orderItems.menu'])->findOrFail($id);
         return view('admin.struk', compact('order'));
     }
-    
+
     // Menu CRUD Methods
     public function menuIndex()
     {
@@ -179,9 +192,9 @@ class AdminController extends Controller
             'gambar.required' => 'URL gambar harus diisi',
             'gambar.url' => 'Format URL gambar tidak valid',
         ]);
-        
+
         Menu::create($validated);
-        
+
         return redirect()->route('admin.menu.index')->with('success', 'Menu berhasil ditambahkan! 🎉');
     }
 
@@ -194,7 +207,7 @@ class AdminController extends Controller
     public function menuUpdate(Request $request, $id)
     {
         $menu = Menu::findOrFail($id);
-        
+
         $validated = $request->validate([
             'nama_menu' => 'required|string|max:255',
             'kategori_menu' => 'required|in:makanan,minuman,dessert,kopi,cemilan',
@@ -211,66 +224,66 @@ class AdminController extends Controller
             'gambar.required' => 'URL gambar harus diisi',
             'gambar.url' => 'Format URL gambar tidak valid',
         ]);
-        
+
         $menu->update($validated);
-        
+
         return redirect()->route('admin.menu.index')->with('success', 'Menu berhasil diupdate! ✅');
     }
 
     public function menuDestroy($id)
     {
         $menu = Menu::findOrFail($id);
-        
+
         // Check if menu has orders
         if ($menu->orderItems()->count() > 0) {
             return back()->with('error', 'Menu tidak bisa dihapus karena sudah ada transaksi! ⚠️');
         }
-        
+
         $menu->delete();
-        
+
         return back()->with('success', 'Menu berhasil dihapus! 🗑️');
     }
-    
+
     // Financial Report
     public function financialReport(Request $request)
     {
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->input('end_date', Carbon::now()->endOfDay()->format('Y-m-d'));
-        
+
         // Ensure dates are Carbon instances for comparison
         $start = Carbon::parse($startDate)->startOfDay();
         $end = Carbon::parse($endDate)->endOfDay();
-        
+
         // Daily revenue - Include both 'paid' and 'done' status
         $dailyRevenue = Order::whereIn('status', ['paid', 'done'])
             ->whereBetween('created_at', [$start, $end])
             ->select(
-                DB::raw('DATE(created_at) as date'), 
-                DB::raw('COUNT(*) as orders'), 
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('COUNT(*) as orders'),
                 DB::raw('SUM(total_harga) as revenue')
             )
             ->groupBy('date')
             ->orderBy('date', 'desc')
             ->get();
-        
+
         // Category breakdown
         $categoryRevenue = OrderItem::join('menus', 'order_items.menu_id', '=', 'menus.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->whereIn('orders.status', ['paid', 'done'])
             ->whereBetween('orders.created_at', [$start, $end])
             ->select(
-                'menus.kategori_menu', 
-                DB::raw('SUM(order_items.subtotal) as revenue'), 
+                'menus.kategori_menu',
+                DB::raw('SUM(order_items.subtotal) as revenue'),
                 DB::raw('COUNT(order_items.id) as items_sold')
             )
             ->groupBy('menus.kategori_menu')
             ->get();
-        
+
         // Summary
         $totalRevenue = $dailyRevenue->sum('revenue');
         $totalOrders = $dailyRevenue->sum('orders');
         $averageOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
-        
+
         // Top selling products
         $topProducts = OrderItem::join('menus', 'order_items.menu_id', '=', 'menus.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
@@ -286,7 +299,7 @@ class AdminController extends Controller
             ->orderBy('total_revenue', 'desc')
             ->limit(10)
             ->get();
-        
+
         return view('admin.financial', compact(
             'dailyRevenue',
             'categoryRevenue',
@@ -315,11 +328,11 @@ class AdminController extends Controller
         $user = auth()->user();
         $user->name = $validated['name'];
         $user->email = $validated['email'];
-        
+
         if ($request->filled('password')) {
             $user->password = bcrypt($validated['password']);
         }
-        
+
         $user->save();
 
         return back()->with('success', 'Profile updated successfully!');
