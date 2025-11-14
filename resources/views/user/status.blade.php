@@ -115,7 +115,8 @@
                 <div class="space-y-3">
                     @foreach ($order->orderItems as $item)
                     <div class="bg-white rounded-xl p-4 shadow-sm flex gap-4">
-                        <img src="{{ $item->menu->gambar }}" class="w-20 h-20 rounded-lg object-cover">
+                        <img src="{{ $item->menu->gambar ? asset('storage/menu-images/' . $item->menu->gambar) : asset('images/default-menu.jpg') }}" 
+                            class="w-20 h-20 rounded-lg object-cover">
                         <div class="flex-1">
                             <h4 class="font-bold text-gray-900 mb-1">{{ $item->menu->nama_menu }}</h4>
                             <p class="text-sm text-gray-500 mb-1">{{ $item->jumlah }}x Rp {{ number_format($item->menu->harga, 0, ',', '.') }}</p>

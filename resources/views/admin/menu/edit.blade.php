@@ -47,15 +47,46 @@
 
         <!-- Form -->
         <div class="max-w-2xl">
-            <form action="{{ route('admin.menu.update', $menu->id) }}" method="POST" class="bg-white rounded-2xl border border-gray-100 p-6 space-y-6">
+            <form action="{{ route('admin.menu.update', $menu->id) }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-2xl border border-gray-100 p-6 space-y-6">
                 @csrf
                 @method('PUT')
 
-                <!-- Preview Image -->
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Preview</label>
-                    <img id="imagePreview" src="{{ $menu->gambar }}" alt="{{ $menu->nama_menu }}" 
-                        class="w-full h-64 object-cover rounded-xl border border-gray-200">
+                <!-- Current Image Preview -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Gambar Saat Ini</label>
+                    <div class="relative">
+                        <img id="currentImage" src="{{ asset('storage/menu-images/' . $menu->gambar) }}" alt="{{ $menu->nama_menu }}" 
+                            class="w-full h-64 object-cover rounded-xl border border-gray-200">
+                        <div class="absolute top-2 right-2 bg-white px-3 py-1 rounded-full text-xs font-semibold text-gray-700 shadow">
+                            Current
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload New Image -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Upload Gambar Baru (Opsional)
+                    </label>
+                    <div class="relative">
+                        <input type="file" id="gambar" name="gambar" accept="image/*"
+                            class="hidden" onchange="previewNewImage(this)">
+                        <label for="gambar" class="cursor-pointer">
+                            <div id="newImagePreview" class="w-full h-48 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-orange-500 transition">
+                                <div class="text-center">
+                                    <svg class="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <p class="text-gray-500 text-sm font-medium">Klik untuk upload gambar baru</p>
+                                    <p class="text-gray-400 text-xs mt-1">JPEG, JPG, PNG, WebP (Max 2MB)</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <p class="text-gray-500 text-xs mt-1">Biarkan kosong jika tidak ingin mengubah gambar</p>
+                    @error('gambar')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Nama Menu -->
@@ -109,22 +140,6 @@
                     @enderror
                 </div>
 
-                <!-- Gambar URL -->
-                <div>
-                    <label for="gambar" class="block text-sm font-semibold text-gray-700 mb-2">
-                        URL Gambar <span class="text-red-500">*</span>
-                    </label>
-                    <input type="url" id="gambar" name="gambar" 
-                        value="{{ old('gambar', $menu->gambar) }}" required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
-                        placeholder="https://images.unsplash.com/photo-..."
-                        onchange="updatePreview(this.value)">
-                    <p class="text-gray-500 text-xs mt-1">Gunakan URL gambar dari Unsplash atau sumber lain</p>
-                    @error('gambar')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
                 <!-- Description -->
                 <div>
                     <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -155,10 +170,20 @@
     </div>
 
     <script>
-        function updatePreview(url) {
-            const preview = document.getElementById('imagePreview');
-            if (url) {
-                preview.src = url;
+        function previewNewImage(input) {
+            const preview = document.getElementById('newImagePreview');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.style.backgroundImage = `url('${e.target.result}')`;
+                    preview.style.backgroundSize = 'cover';
+                    preview.style.backgroundPosition = 'center';
+                    preview.innerHTML = '<div class="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">New Image</div>';
+                }
+                
+                reader.readAsDataURL(input.files[0]);
             }
         }
     </script>

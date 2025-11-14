@@ -180,7 +180,7 @@ class AdminController extends Controller
             'nama_menu' => 'required|string|max:255',
             'kategori_menu' => 'required|in:makanan,minuman,dessert,kopi,cemilan',
             'harga' => 'required|numeric|min:0',
-            'gambar' => 'required|url',
+            'gambar' => 'required|image|mimes:jpeg,jpg,png,webp|max:2048', // Max 2MB
             'description' => 'nullable|string',
         ], [
             'nama_menu.required' => 'Nama menu harus diisi',
@@ -189,12 +189,22 @@ class AdminController extends Controller
             'harga.required' => 'Harga harus diisi',
             'harga.numeric' => 'Harga harus berupa angka',
             'harga.min' => 'Harga tidak boleh negatif',
-            'gambar.required' => 'URL gambar harus diisi',
-            'gambar.url' => 'Format URL gambar tidak valid',
+            'gambar.required' => 'Gambar menu harus diupload',
+            'gambar.image' => 'File harus berupa gambar',
+            'gambar.mimes' => 'Format gambar harus JPEG, JPG, PNG, atau WebP',
+            'gambar.max' => 'Ukuran gambar maksimal 2MB',
         ]);
-
+        
+        // Upload file
+        if ($request->hasFile('gambar')) {
+            $file = $request->file('gambar');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('menu-images', $filename, 'public');
+            $validated['gambar'] = $filename;
+        }
+        
         Menu::create($validated);
-
+        
         return redirect()->route('admin.menu.index')->with('success', 'Menu berhasil ditambahkan! 🎉');
     }
 
@@ -207,40 +217,59 @@ class AdminController extends Controller
     public function menuUpdate(Request $request, $id)
     {
         $menu = Menu::findOrFail($id);
-
+        
         $validated = $request->validate([
             'nama_menu' => 'required|string|max:255',
             'kategori_menu' => 'required|in:makanan,minuman,dessert,kopi,cemilan',
             'harga' => 'required|numeric|min:0',
-            'gambar' => 'required|url',
+            'gambar' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048', // Nullable karena optional saat update
             'description' => 'nullable|string',
         ], [
             'nama_menu.required' => 'Nama menu harus diisi',
             'kategori_menu.required' => 'Kategori harus dipilih',
-            'kategori_menu.in' => 'Kategori tidak valid. Pilih: makanan, minuman, dessert, kopi, atau cemilan',
+            'kategori_menu.in' => 'Kategori tidak valid',
             'harga.required' => 'Harga harus diisi',
             'harga.numeric' => 'Harga harus berupa angka',
             'harga.min' => 'Harga tidak boleh negatif',
-            'gambar.required' => 'URL gambar harus diisi',
-            'gambar.url' => 'Format URL gambar tidak valid',
+            'gambar.image' => 'File harus berupa gambar',
+            'gambar.mimes' => 'Format gambar harus JPEG, JPG, PNG, atau WebP',
+            'gambar.max' => 'Ukuran gambar maksimal 2MB',
         ]);
-
+        
+        // Upload file baru jika ada
+        if ($request->hasFile('gambar')) {
+            // Hapus gambar lama jika ada
+            if ($menu->gambar && \Storage::disk('public')->exists('menu-images/' . $menu->gambar)) {
+                \Storage::disk('public')->delete('menu-images/' . $menu->gambar);
+            }
+            
+            $file = $request->file('gambar');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('menu-images', $filename, 'public');
+            $validated['gambar'] = $filename;
+        }
+        
         $menu->update($validated);
-
+        
         return redirect()->route('admin.menu.index')->with('success', 'Menu berhasil diupdate! ✅');
     }
 
     public function menuDestroy($id)
     {
         $menu = Menu::findOrFail($id);
-
+        
         // Check if menu has orders
         if ($menu->orderItems()->count() > 0) {
             return back()->with('error', 'Menu tidak bisa dihapus karena sudah ada transaksi! ⚠️');
         }
-
+        
+        // Hapus gambar dari storage
+        if ($menu->gambar && \Storage::disk('public')->exists('menu-images/' . $menu->gambar)) {
+            \Storage::disk('public')->delete('menu-images/' . $menu->gambar);
+        }
+        
         $menu->delete();
-
+        
         return back()->with('success', 'Menu berhasil dihapus! 🗑️');
     }
 

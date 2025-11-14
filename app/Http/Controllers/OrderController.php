@@ -103,6 +103,11 @@ class OrderController extends Controller
         $cart = Session::get('cart', []);
         $menu = Menu::findOrFail($request->menu_id);
 
+        // BUAT URL GAMBAR LENGKAP
+        $imagePath = $menu->gambar 
+            ? asset('storage/menu-images/' . $menu->gambar) 
+            : asset('images/default-menu.jpg');
+
         if (isset($cart[$menu->id])) {
             $cart[$menu->id]['quantity'] += $request->quantity;
         } else {
@@ -111,7 +116,7 @@ class OrderController extends Controller
                 'name' => $menu->nama_menu,
                 'price' => $menu->harga,
                 'quantity' => $request->quantity,
-                'image' => $menu->gambar,
+                'image' => $imagePath,
                 'category' => $menu->kategori_menu,
             ];
         }

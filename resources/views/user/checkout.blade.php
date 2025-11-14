@@ -38,7 +38,9 @@
                     <div class="flex gap-4 items-start mb-6 last:mb-0">
                         <!-- Item Image (gunakan placeholder atau asset nyata) -->
                         <div class="w-20 h-20 bg-orange-100 rounded-2xl flex-shrink-0 overflow-hidden">
-                            <img src="{{ $item['image'] ?? 'https://via.placeholder.com/80?text=Item' }}" alt="{{ $item['name'] }}" class="w-full h-full object-cover">
+                            <img src="{{ $item['image'] ?? asset('images/default-menu.jpg') }}" 
+                                alt="{{ $item['name'] }}" 
+                                class="w-full h-full object-cover">    
                         </div>
                         
                         <!-- Item Details -->

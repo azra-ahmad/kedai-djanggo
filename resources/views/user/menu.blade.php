@@ -422,49 +422,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
-<body class="bg-gradient-to-br from-white via-[#EBEBEB] to-white" x-data="{
-    cart: [],
-    currentCategory: 'all',
-    detailModal: false,
-    showCartPanel: false,
-    currentProduct: {},
-    cartCount: 0,
-    currentTab: 'home',
-    total: 0,
-    
-    init() {
-        this.loadCart();
-        window.addEventListener('cart-updated', (e) => {
-            this.loadCart();
-            this.detailModal = false;
-        });
-    },
-    
-    loadCart() {
-        fetch('{{ route('cart.index') }}', {
-            headers: { 'Accept': 'application/json' }
-        })
-        .then(response => response.json())
-        .then(data => {
-            this.cart = data.cart || [];
-            this.cartCount = data.cart_count || 0;
-            this.total = data.total || 0;
-        })
-        .catch(error => {
-            console.error('Error loading cart:', error);
-            this.cart = [];
-            this.cartCount = 0;
-        });
-    },
-    
-    switchTab(tab) {
-        this.currentTab = tab;
-        this.detailModal = false;
-        this.showCartPanel = false;
-        document.querySelectorAll('#homeScreen, #ordersScreen, #aboutScreen').forEach(screen => screen.classList.add('hidden'));
-        document.getElementById(tab + 'Screen').classList.remove('hidden');
-    }
-}">
+<body class="bg-gradient-to-br from-white via-[#EBEBEB] to-white" x-data="app()" x-init="init()">
     <div id="mainApp" class="min-h-screen">
         <div id="homeScreen" class="pb-24">
             <!-- Header -->
@@ -528,73 +486,73 @@
 
             <!-- Menu Items -->
            <div class="px-5 py-4">
-    <div class="flex items-center justify-between mb-5">
-        <h2 class="text-lg font-semibold text-gray-900">Menu Spesial</h2>
-        <div class="flex items-center gap-1.5 bg-[#EBEBEB] px-3 py-1.5 rounded-full">
-            <svg class="w-4 h-4 text-[#EF7722]" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-            </svg>
-            <span class="text-xs font-medium text-[#EF7722]">Best Seller</span>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-5">
-        @foreach ($menus as $menu)
-        <div class="menu-card rounded-2xl overflow-hidden group relative"
-             x-data="{ 
-                 product: { 
-                     id: {{ $menu->id }}, 
-                     name: '{{ $menu->nama_menu }}', 
-                     price: {{ $menu->harga }}, 
-                     category: '{{ $menu->kategori_menu }}', 
-                     description: '{{ $menu->description }}', 
-                     image: '{{ $menu->gambar }}' 
-                 }
-             }"
-             x-show="currentCategory === 'all' || currentCategory === '{{ $menu->kategori_menu }}'">
-
-            <!-- Clickable Area untuk Detail Modal (hanya gambar + teks, bukan button) -->
-            <div @click="currentProduct = product; detailModal = true"
-                 class="absolute inset-0 z-10 cursor-pointer">
-            </div>
-
-            <div class="aspect-square bg-[#EBEBEB] relative overflow-hidden">
-                <img src="{{ $menu->gambar }}" 
-                     class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-                     alt="{{ $menu->nama_menu }}">
-                <div class="absolute top-3 left-3 bg-white px-2.5 py-1 rounded-lg shadow-sm">
-                    <span class="text-xs font-medium text-gray-700 flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 fill-current text-[#FAA533]" viewBox="0 0 20 20">
+                <div class="flex items-center justify-between mb-5">
+                    <h2 class="text-lg font-semibold text-gray-900">Menu Spesial</h2>
+                    <div class="flex items-center gap-1.5 bg-[#EBEBEB] px-3 py-1.5 rounded-full">
+                        <svg class="w-4 h-4 text-[#EF7722]" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                         </svg>
-                        4.8
-                    </span>
-                </div>
-            </div>
-
-            <div class="p-4 bg-white relative"> <!-- relative agar button di atas overlay -->
-                <h3 class="font-semibold text-gray-900 text-base mb-1.5 line-clamp-1">{{ $menu->nama_menu }}</h3>
-                <p class="text-xs text-gray-500 mb-4 line-clamp-2 leading-relaxed">{{ $menu->description }}</p>
-
-                <div class="space-y-2.5">
-                    <div class="flex items-baseline gap-1">
-                        <span class="text-lg font-bold text-gray-900">Rp {{ number_format($menu->harga, 0, ',', '.') }}</span>
+                        <span class="text-xs font-medium text-[#EF7722]">Best Seller</span>
                     </div>
+                </div>
 
-                    <!-- Button Tambah: z-20 + pointer-events-auto -->
-                    <button @click.stop="addToCart(product.id)" 
-                            class="relative z-20 w-full bg-gradient-to-r from-[#EF7722] to-[#FAA533] hover:from-[#d96a1e] hover:to-[#e6952c] text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-1.5 pointer-events-auto focus:outline-none focus:ring-2 focus:ring-[#EF7722] focus:ring-offset-2">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v12m6-6H6"></path>
-                        </svg>
-                        Tambah
-                    </button>
+                <div class="grid grid-cols-2 gap-5">
+                    @foreach ($menus as $menu)
+                    <div class="menu-card rounded-2xl overflow-hidden group relative"
+                        x-data="{ 
+                            product: { 
+                                id: {{ $menu->id }}, 
+                                name: '{{ $menu->nama_menu }}', 
+                                price: {{ $menu->harga }}, 
+                                category: '{{ $menu->kategori_menu }}', 
+                                description: '{{ $menu->description }}', 
+                                image: '{{ $menu->gambar ? asset('storage/menu-images/' . $menu->gambar) : asset('images/default-menu.jpg') }}' 
+                            }
+                        }"
+                        x-show="currentCategory === 'all' || currentCategory === '{{ $menu->kategori_menu }}'">
+
+                        <!-- Clickable Area untuk Detail Modal (hanya gambar + teks, bukan button) -->
+                        <div @click="currentProduct = product; detailModal = true"
+                            class="absolute inset-0 z-10 cursor-pointer">
+                        </div>
+
+                        <div class="aspect-square bg-[#EBEBEB] relative overflow-hidden">
+                            <img src="{{ $menu->gambar ? asset('storage/menu-images/' . $menu->gambar) : asset('images/default-menu.jpg') }}" 
+                                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                                alt="{{ $menu->nama_menu }}">
+                            <div class="absolute top-3 left-3 bg-white px-2.5 py-1 rounded-lg shadow-sm">
+                                <span class="text-xs font-medium text-gray-700 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 fill-current text-[#FAA533]" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                    4.8
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-white relative"> <!-- relative agar button di atas overlay -->
+                            <h3 class="font-semibold text-gray-900 text-base mb-1.5 line-clamp-1">{{ $menu->nama_menu }}</h3>
+                            <p class="text-xs text-gray-500 mb-4 line-clamp-2 leading-relaxed">{{ $menu->description }}</p>
+
+                            <div class="space-y-2.5">
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-lg font-bold text-gray-900">Rp {{ number_format($menu->harga, 0, ',', '.') }}</span>
+                                </div>
+
+                                <!-- Button Tambah: z-20 + pointer-events-auto -->
+                                <button @click.stop="addToCart(product.id)" 
+                                        class="relative z-20 w-full bg-gradient-to-r from-[#EF7722] to-[#FAA533] hover:from-[#d96a1e] hover:to-[#e6952c] text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-1.5 pointer-events-auto focus:outline-none focus:ring-2 focus:ring-[#EF7722] focus:ring-offset-2">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v12m6-6H6"></path>
+                                    </svg>
+                                    Tambah
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
             </div>
-        </div>
-        @endforeach
-    </div>
-</div>
         </div>
 
         <!-- ABOUT SCREEN -->
@@ -861,7 +819,8 @@
                 <div class="space-y-4 mb-5">
                     <template x-for="item in cart" :key="item.id">
                         <div class="bg-white rounded-2xl p-4 flex gap-4 border-2 border-[#EBEBEB] shadow-lg hover:shadow-xl transition-all">
-                            <img :src="item.image" class="w-24 h-24 rounded-xl object-cover border-2 border-[#EF7722] shadow-md">
+                            <img :src="item.image || '{{ asset('images/default-menu.jpg') }}'" 
+                                class="w-24 h-24 rounded-xl object-cover border-2 border-[#EF7722] shadow-md">     
                             <div class="flex-1">
                                 <h4 class="font-bold text-gray-900 mb-1 text-sm" x-text="item.name"></h4>
                                 <p class="gradient-text font-bold mb-3 text-base" x-text="'Rp ' + (item.price * item.quantity).toLocaleString('id-ID')"></p>
@@ -924,91 +883,121 @@
     </div>
 
     <script>
-        function addToCart(menuId) {
-            if (!menuId) return;
+        function app() {
+            return {
+                cart: [],
+                currentCategory: 'all',
+                detailModal: false,
+                showCartPanel: false,
+                currentProduct: {},
+                cartCount: 0,
+                currentTab: 'home',
+                total: 0,
 
-            fetch('{{ route('cart.add') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
+                init() {
+                    this.loadCart();
+                    window.addEventListener('cart-updated', () => {
+                        this.loadCart();
+                        this.detailModal = false;
+                    });
                 },
-                body: JSON.stringify({
-                    menu_id: menuId,
-                    quantity: 1
-                })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(data => {
-                console.log('Add to cart success:', data);
-                window.dispatchEvent(new CustomEvent('cart-updated', { detail: data }));
-                showToast('✅ Berhasil ditambahkan ke keranjang!');
-            })
-            .catch(error => {
-                console.error('Error adding to cart:', error);
-                showToast('❌ Gagal menambahkan ke keranjang', 'error');
-            });
-        }
 
-        function updateQuantity(menuId, delta) {
-            if (!menuId) return;
-
-            fetch('{{ route('cart.update') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
+                loadCart() {
+                    fetch('{{ route('cart.index') }}', {
+                        headers: { 'Accept': 'application/json' }
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        this.cart = data.cart || [];
+                        this.cartCount = data.cart_count || 0;
+                        this.total = data.total || 0;
+                    })
+                    .catch(() => {
+                        this.cart = [];
+                        this.cartCount = 0;
+                        this.total = 0;
+                    });
                 },
-                body: JSON.stringify({
-                    menu_id: menuId,
-                    delta: delta
-                })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(data => {
-                console.log('Update quantity success:', data);
-                window.dispatchEvent(new CustomEvent('cart-updated', { detail: data }));
-            })
-            .catch(error => {
-                console.error('Error updating quantity:', error);
-                showToast('❌ Gagal mengupdate jumlah', 'error');
-            });
-        }
 
-        function logout() {
-            if (confirm('Yakin ingin keluar?')) {
-                fetch('{{ route('logout') }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                switchTab(tab) {
+                    this.currentTab = tab;
+                    this.detailModal = false;
+                    this.showCartPanel = false;
+                    document.querySelectorAll('#homeScreen, #ordersScreen, #aboutScreen')
+                        .forEach(screen => screen.classList.add('hidden'));
+                    document.getElementById(tab + 'Screen').classList.remove('hidden');
+                },
+
+                // TAMBAH KE KERANJANG
+                addToCart(menuId) {
+                    fetch('{{ route('cart.add') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            menu_id: menuId,
+                            quantity: 1
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        this.cart = data.cart || [];
+                        this.cartCount = data.cart_count || 0;
+                        this.total = data.total || 0;
+                        window.dispatchEvent(new CustomEvent('cart-updated'));
+                        this.showToast('Berhasil ditambahkan ke keranjang!');
+                    })
+                    .catch(() => this.showToast('Gagal!', 'error'));
+                },
+
+                // UPDATE JUMLAH
+                updateQuantity(menuId, delta) {
+                    fetch('{{ route('cart.update') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ menu_id: menuId, delta: delta })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        this.cart = data.cart || [];
+                        this.cartCount = data.cart_count || 0;
+                        this.total = data.total || 0;
+                        window.dispatchEvent(new CustomEvent('cart-updated'));
+                    })
+                    .catch(() => this.showToast('Gagal update!', 'error'));
+                },
+
+                logout() {
+                    if (confirm('Yakin ingin keluar?')) {
+                        fetch('{{ route('logout') }}', {
+                            method: 'POST',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                        }).then(() => window.location.href = '{{ route('user.form') }}');
                     }
-                })
-                .then(() => window.location.href = '{{ route('user.form') }}');
+                },
+
+                showToast(message, type = 'success') {
+                    const toast = document.createElement('div');
+                    toast.className = `fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] px-6 py-4 rounded-2xl shadow-2xl text-sm font-bold ${type === 'success' ? 'bg-gradient-to-r from-[#EF7722] to-[#FAA533] text-white' : 'bg-gradient-to-r from-red-400 to-rose-500 text-white'}`;
+                    toast.style.minWidth = '280px';
+                    toast.textContent = message;
+                    document.body.appendChild(toast);
+
+                    setTimeout(() => {
+                        toast.style.opacity = '0';
+                        toast.style.transform = 'translate(-50%, -20px)';
+                        toast.style.transition = 'all 0.3s ease';
+                        setTimeout(() => toast.remove(), 300);
+                    }, 2500);
+                }
             }
         }
-
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] px-6 py-4 rounded-2xl shadow-2xl text-sm font-bold ${type === 'success' ? 'bg-gradient-to-r from-[#EF7722] to-[#FAA533] text-white' : 'bg-gradient-to-r from-red-400 to-rose-500 text-white'}`;
-            toast.style.minWidth = '280px';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translate(-50%, -20px)';
-                toast.style.transition = 'all 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
-            }, 2500);
-        }
-    </script>
+        </script>
 </body>
 </html>
