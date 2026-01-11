@@ -8,7 +8,10 @@ use App\Models\Customer;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class AdminController extends Controller
 {
@@ -169,6 +172,31 @@ class AdminController extends Controller
         return view('admin.menu.index', compact('menus'));
     }
 
+    /**
+     * Normalize uploaded image to 800x800 square (center crop)
+     * Only processes local uploaded files, not external URLs
+     */
+    private function normalizeMenuImage($file, $filename)
+    {
+        try {
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($file->getRealPath());
+            
+            // Center crop to 800x800
+            $image->cover(800, 800);
+            
+            // Save to storage as JPEG
+            $path = 'menu-images/' . $filename;
+            Storage::disk('public')->put($path, $image->toJpeg()->toString());
+            
+            return true;
+        } catch (\Exception $e) {
+            // If image processing fails, fall back to original upload
+            $file->storeAs('menu-images', $filename, 'public');
+            return false;
+        }
+    }
+
     public function menuCreate()
     {
         return view('admin.menu.create');
@@ -195,11 +223,11 @@ class AdminController extends Controller
             'gambar.max' => 'Ukuran gambar maksimal 2MB',
         ]);
         
-        // Upload file
+        // Upload and normalize image
         if ($request->hasFile('gambar')) {
             $file = $request->file('gambar');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('menu-images', $filename, 'public');
+            $this->normalizeMenuImage($file, $filename);
             $validated['gambar'] = $filename;
         }
         
@@ -238,14 +266,14 @@ class AdminController extends Controller
         
         // Upload file baru jika ada
         if ($request->hasFile('gambar')) {
-            // Hapus gambar lama jika ada
-            if ($menu->gambar && \Storage::disk('public')->exists('menu-images/' . $menu->gambar)) {
-                \Storage::disk('public')->delete('menu-images/' . $menu->gambar);
+            // Hapus gambar lama jika ada (hanya untuk local files)
+            if ($menu->gambar && !str_starts_with($menu->gambar, 'http') && Storage::disk('public')->exists('menu-images/' . $menu->gambar)) {
+                Storage::disk('public')->delete('menu-images/' . $menu->gambar);
             }
             
             $file = $request->file('gambar');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('menu-images', $filename, 'public');
+            $this->normalizeMenuImage($file, $filename);
             $validated['gambar'] = $filename;
         }
         
@@ -263,9 +291,9 @@ class AdminController extends Controller
             return back()->with('error', 'Menu tidak bisa dihapus karena sudah ada transaksi! ⚠️');
         }
         
-        // Hapus gambar dari storage
-        if ($menu->gambar && \Storage::disk('public')->exists('menu-images/' . $menu->gambar)) {
-            \Storage::disk('public')->delete('menu-images/' . $menu->gambar);
+        // Hapus gambar dari storage (hanya untuk local files)
+        if ($menu->gambar && !str_starts_with($menu->gambar, 'http') && Storage::disk('public')->exists('menu-images/' . $menu->gambar)) {
+            Storage::disk('public')->delete('menu-images/' . $menu->gambar);
         }
         
         $menu->delete();

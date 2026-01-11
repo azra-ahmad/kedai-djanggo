@@ -52,10 +52,14 @@
             @forelse($menus as $menu)
                 <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition group">
                     <div class="aspect-square bg-gray-100 relative overflow-hidden">
-                        <img src="{{ asset('storage/menu-images/' . $menu->gambar) }}" 
-                             alt="{{ $menu->nama_menu }}" 
-                             class="w-full h-full object-cover group-hover:scale-110 transition duration-300"
-                             onerror="this.src='{{ asset('images/default.jpg') }}'">
+                        <img 
+                            src="{{ Str::startsWith($menu->gambar, 'http')
+                                ? $menu->gambar
+                                : asset('storage/menu-images/' . $menu->gambar) }}"
+                            alt="{{ $menu->nama_menu }}"
+                            class="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+                            onerror="this.src='{{ asset('images/default.jpg') }}'"
+                        >
                         <div class="absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-semibold
                             @if($menu->kategori_menu == 'kopi') bg-amber-100 text-amber-800
                             @elseif($menu->kategori_menu == 'minuman') bg-blue-100 text-blue-800

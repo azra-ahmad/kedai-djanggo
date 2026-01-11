@@ -55,7 +55,7 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Gambar Saat Ini</label>
                     <div class="relative">
-                        <img id="currentImage" src="{{ asset('storage/menu-images/' . $menu->gambar) }}" alt="{{ $menu->nama_menu }}" 
+                        <img id="currentImage" src="{{ Str::startsWith($menu->gambar, 'http') ? $menu->gambar : asset('storage/menu-images/' . $menu->gambar) }}" alt="{{ $menu->nama_menu }}" 
                             class="w-full h-64 object-cover rounded-xl border border-gray-200">
                         <div class="absolute top-2 right-2 bg-white px-3 py-1 rounded-full text-xs font-semibold text-gray-700 shadow">
                             Current
