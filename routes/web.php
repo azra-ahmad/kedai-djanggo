@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [OrderController::class, 'showForm'])->name('user.form');
 Route::post('/submit-identity', [OrderController::class, 'submitIdentity'])->name('user.submitIdentity');
-Route::post('/logout', [OrderController::class, 'logout'])->name('logout');
+Route::post('/customer/logout', [OrderController::class, 'logout'])
+    ->name('customer.logout');
 Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
 Route::post('/add-to-cart', [OrderController::class, 'addToCart'])->name('cart.add');
 Route::post('/update-quantity', [OrderController::class, 'updateQuantity'])->name('cart.update');
@@ -16,6 +17,7 @@ Route::post('/clear-cart', [OrderController::class, 'clearCart'])->name('cart.cl
 Route::get('/cart', [OrderController::class, 'cart'])->name('cart.index');
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
 Route::get('/order/status/{order_id}', [OrderController::class, 'status'])->name('order.status');
+Route::get('/order/{order_id}/receipt', [OrderController::class, 'showReceipt'])->name('order.receipt');
 Route::post('/order/{order_id}/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancel');
 Route::post('/order/{order_id}/update-payment', [OrderController::class, 'updatePaymentStatus'])->name('order.updatePayment');
 Route::post('/midtrans/notification', [OrderController::class, 'notificationHandler'])->name('midtrans.notification');

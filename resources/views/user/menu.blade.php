@@ -975,10 +975,15 @@
 
                 logout() {
                     if (confirm('Yakin ingin keluar?')) {
-                        fetch('{{ route('logout') }}', {
+                        fetch('{{ route('customer.logout') }}', {
                             method: 'POST',
-                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-                        }).then(() => window.location.href = '{{ route('user.form') }}');
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                            },
+                        }).then(() => {
+                            window.location.href = "{{ route('user.form') }}";
+                        });
                     }
                 },
 

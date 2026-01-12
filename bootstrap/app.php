@@ -14,6 +14,20 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
+        
+        // Exclude Midtrans webhook from CSRF protection
+        $middleware->validateCsrfTokens(except: [
+            'midtrans/*',
+            'midtrans/notification', 
+        ]);
+
+        // Redirect authenticated users based on role
+        $middleware->redirectUsersTo(function () {
+            if (auth()->check() && auth()->user()->role === 'admin') {
+                return route('admin.dashboard');
+            }
+            return route('menu.index');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

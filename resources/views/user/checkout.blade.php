@@ -148,46 +148,29 @@
                 console.log('Tombol diklik, memanggil snap.pay...');
 
                 snap.pay(snapToken, {
-                    onSuccess: function(result) {
-                        console.log('Payment success:', result);
+                    onSuccess: function () {
                         fetch('{{ route('order.updatePayment', $order->id) }}', {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({ status: 'paid' })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log('Status updated:', data);
-                            return fetch('{{ route('cart.clear') }}', {
-                                method: 'POST',
-                                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-                            });
-                        })
-                        .then(() => {
-                            window.location.href = '{{ route('order.status', $order->id) }}';
-                        })
-                        .catch(err => {
-                            console.error('Update error:', err);
+                        }).then(() => {
                             window.location.href = '{{ route('order.status', $order->id) }}';
                         });
                     },
-                    onPending: function(result) {
-                        console.log('Pending:', result);
+                    onPending: function () {
                         window.location.href = '{{ route('order.status', $order->id) }}';
                     },
-                    onError: function(result) {
-                        console.error('Error:', result);
-                        alert('Pembayaran gagal: ' + (result.status_message || 'Coba lagi'));
+                    onError: function () {
                         window.location.href = '{{ route('order.status', $order->id) }}';
                     },
-                    onClose: function() {
-                        console.log('Popup ditutup');
+                    onClose: function () {
                         window.location.href = '{{ route('order.status', $order->id) }}';
                     }
                 });
+
             });
         });
     </script>

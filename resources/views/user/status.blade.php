@@ -58,7 +58,7 @@
                 </div>
 
                 <!-- Tombol Download (di kanan) -->
-                <a href="{{ route('admin.struk', $order->id) }}"
+                <a href="{{ route('order.receipt', $order->id) }}"
                     target="_blank"
                     class="flex items-center gap-2  text-black px-4 py-2 rounded-lg text-xs font-bold hover-lift transition-all shadow-md">
 
@@ -137,84 +137,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Status Info -->
-            <!-- @if($order->status == 'pending')
-                <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mt-4">
-                    <div class="flex items-start gap-3">
-                        <svg class="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <div>
-                            <p class="font-semibold text-gray-900 mb-1">Menunggu Pembayaran</p>
-                            <p class="text-sm text-gray-600">Silakan selesaikan pembayaran untuk melanjutkan pesanan Anda.</p>
-                        </div>
-                    </div>
-                </div>
-            @elseif($order->status == 'paid')
-                <div class="bg-green-50 border border-green-200 rounded-xl p-4 mt-4">
-                    <div class="flex items-start gap-3">
-                        <div class="relative">
-                            <svg class="w-6 h-6 text-green-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-semibold text-gray-900 mb-1">Pembayaran Berhasil! 🎉</p>
-                            <div class="space-y-2 text-sm text-gray-700">
-                                <p class="flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    Pesanan sedang diproses oleh dapur
-                                </p>
-                                <p class="flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    Estimasi waktu: <strong>15-20 menit</strong>
-                                </p>
-                                <p class="flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                    Pesanan akan diantar ke meja Anda
-                                </p>
-                            </div>
-                            <div class="mt-3 bg-white border border-green-300 rounded-lg p-3">
-                                <p class="text-xs font-semibold text-green-800 mb-1">💡 Tips:</p>
-                                <p class="text-xs text-gray-600">Sambil menunggu, Anda bisa pesan menu lainnya atau nikmati suasana kedai kami!</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @elseif($order->status == 'done')
-                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-4">
-                    <div class="flex items-start gap-3">
-                        <svg class="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        <div>
-                            <p class="font-semibold text-gray-900 mb-1">Pesanan Selesai ✨</p>
-                            <p class="text-sm text-gray-600">Pesanan Anda sudah siap dan telah diantar. Selamat menikmati! 🍜☕</p>
-                            <p class="text-sm text-gray-600 mt-2">Terima kasih telah memesan di <strong>Kedai Djanggo</strong>! 🙏</p>
-                        </div>
-                    </div>
-                </div>
-            @elseif($order->status == 'failed')
-                <div class="bg-red-50 border border-red-200 rounded-xl p-4 mt-4">
-                    <div class="flex items-start gap-3">
-                        <svg class="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                        <div>
-                            <p class="font-semibold text-gray-900 mb-1">Pesanan Dibatalkan</p>
-                            <p class="text-sm text-gray-600">Pesanan ini telah dibatalkan. Silakan pesan lagi atau hubungi staff jika ada pertanyaan.</p>
-                        </div>
-                    </div>
-                </div>
-            @endif -->
         </div>
 
         <!-- Fixed Bottom Button -->
@@ -248,16 +170,9 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                .then(data => {
                     console.log('Payment updated:', data);
-                    // Clear cart setelah payment berhasil
-                    return fetch('{{ route('cart.clear') }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    });
-                })
-                .then(() => {
+                    // Server will handle cart clearing on next reload
                     alert('Pembayaran berhasil! Pesanan sedang diproses.');
                     location.reload();
                 })
@@ -277,17 +192,12 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log('Checking status:', data);
-                    if (data.status !== 'pending') {
-                        // Clear cart when payment successful
-                        fetch('{{ route('cart.clear') }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            }
-                        }).then(() => {
-                            console.log('Cart cleared, reloading page');
-                            location.reload();
-                        });
+                    if (data.status === 'paid') {
+                         console.log('Order paid, reloading to clear cart (handled by server)');
+                         location.reload();
+                    } else if (data.status !== 'pending') {
+                         // For failed/expired, just reload to show status
+                         location.reload();
                     }
                 })
                 .catch(error => console.error('Error checking status:', error));

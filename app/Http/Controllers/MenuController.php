@@ -9,19 +9,35 @@ use Illuminate\Http\Request;
 
 class MenuController extends Controller
 {
+    /**
+     * Get customer from session token (helper method)
+     */
+    protected function getCustomerFromSession()
+    {
+        $token = session('customer_token');
+        if (!$token) {
+            return null;
+        }
+        return Customer::findByToken($token);
+    }
+
     public function index()
     {
         $menus = Menu::all();
         $cart = session('cart', []);
-        $customer_id = session('customer_id');
 
-        // Ambil data customer kalau ada
-        $customer = null;
-        if ($customer_id) {
-            $customer = Customer::find($customer_id);
+        // Get customer from session token
+        $customer = $this->getCustomerFromSession();
+
+        // SAFETY: kalau ga ada token → balik ke form
+        $token = session('customer_token');
+        if (!$token || !$customer) {
+            return redirect()->route('user.form');
         }
 
-        $orders = Order::where('customer_id', $customer_id)->with('orderItems.menu')->get();
+        $orders = Order::where('customer_token', $token)
+            ->with('orderItems.menu')
+            ->get();
 
         return view('user.menu', compact('menus', 'cart', 'customer', 'orders'));
     }

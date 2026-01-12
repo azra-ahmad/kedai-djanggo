@@ -13,14 +13,29 @@ use Midtrans\Snap;
 
 class OrderController extends Controller
 {
+    /**
+     * Get customer from session token (helper method)
+     * Returns null if token invalid or customer not found
+     */
+    protected function getCustomerFromSession()
+    {
+        $token = session('customer_token');
+        if (!$token) {
+            return null;
+        }
+        return Customer::where('customer_token', $token)->first();
+    }
+
     public function showForm()
     {
-        // Clear session lama kalau ada
+        // Clear customer session if requested (preserve admin auth)
         if (request()->has('new_session')) {
-            Session::flush();
+            Session::forget('customer_token');
+            Session::forget('cart');
         }
         
-        if (session()->has('customer_id')) {
+        // Check if customer token exists and is valid
+        if ($this->getCustomerFromSession()) {
             return redirect()->route('menu.index');
         }
         
@@ -29,11 +44,18 @@ class OrderController extends Controller
 
     public function orders()
     {
-        $customer_id = Session::get('customer_id');
-        if (!$customer_id) {
+        $customer = $this->getCustomerFromSession();
+        if (!$customer) {
             return redirect()->route('user.form');
         }
-        $orders = Order::where('customer_id', $customer_id)->with('orderItems.menu')->get();
+        
+        // Query orders by customer_token from session for strict privacy isolation
+        // This ensures users can't see orders from previous sessions even if they used the same phone number
+        $orders = Order::where('customer_token', session('customer_token'))
+            ->with('orderItems.menu')
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
         return view('user.orders', compact('orders'));
     }
 
@@ -44,23 +66,32 @@ class OrderController extends Controller
             'phone' => 'required|string|max:20',
         ]);
 
-        $customer = Customer::firstOrCreate(
-            ['phone' => $validated['phone']],
-            ['name' => $validated['name']]
-        );
+        // ALWAYS create a new customer record for every session
+        // This ensures strict separation of identities even if phone number is reused
+        $customer = Customer::create([
+            'phone' => $validated['phone'],
+            'name' => $validated['name'],
+            'customer_token' => \Illuminate\Support\Str::uuid()->toString(),
+        ]);
 
-        // Clear old session
-        Session::flush();
+        // Clear only customer-related session data (preserve admin auth)
+        Session::forget('customer_token');
+        Session::forget('cart');
         
-        // Set new customer session
-        session(['customer_id' => $customer->id]);
+        // Set customer token in session
+        session(['customer_token' => $customer->customer_token]);
         
         return redirect()->route('menu.index');
     }
 
     public function logout()
     {
-        Session::flush();
+        // Explicit customer logout
+        Session::forget('customer_token');
+        Session::forget('cart');
+        
+        // Do NOT use flush() or Auth::logout() to protect admin session
+        
         return redirect()->route('user.form');
     }
 
@@ -137,16 +168,28 @@ class OrderController extends Controller
             return redirect()->route('menu.index')->with('error', 'Keranjang kosong!');
         }
 
-        $customer_id = Session::get('customer_id');
+        $customer = $this->getCustomerFromSession();
+        if (!$customer) {
+            return redirect()->route('user.form')->with('error', 'Silakan masukkan identitas terlebih dahulu');
+        }
 
         $total = array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $cart));
 
+        // SINGLE SOURCE OF TRUTH: Generate midtrans_order_id ONCE here
+        // Format: KDJ-{timestamp} as required
+        $midtransOrderId = 'KDJ-' . time();
+
         $order = Order::create([
-            'customer_id' => $customer_id,
-            'total_harga' => $total,
+            'customer_id' => $customer->id,
+            'customer_token' => session('customer_token'),
             'status' => 'pending',
-            'midtrans_order_id' => 'KDJ-' . time(),
+            'total_harga' => $total,
+            'midtrans_order_id' => $midtransOrderId,
         ]);
+
+        // Removed redundant update call
+        // $order->update(['midtrans_order_id' => ...]);
+
 
         foreach ($cart as $menu_id => $item) {
             OrderItem::create([
@@ -168,8 +211,8 @@ class OrderController extends Controller
                 'gross_amount' => $total,
             ],
             'customer_details' => [
-                'first_name' => Customer::find($customer_id)->name,
-                'phone' => Customer::find($customer_id)->phone,
+                'first_name' => $customer->name,
+                'phone' => $customer->phone,
             ],
         ];
 
@@ -186,6 +229,12 @@ class OrderController extends Controller
     {
         $order = Order::with(['customer', 'orderItems.menu'])->findOrFail($order_id);
         
+        // STEP 4 FIX: Cart Reset Logic
+        // Cart must be cleared ONLY when order.status === 'paid'
+        if ($order->status === 'paid') {
+            Session::forget('cart');
+        }
+
         if (request()->wantsJson()) {
             return response()->json([
                 'status' => $order->status,
@@ -199,6 +248,7 @@ class OrderController extends Controller
 
     public function notificationHandler(Request $request)
     {
+        \Log::info('MIDTRANS WEBHOOK HIT', $request->all());
         try {
             \Log::info('Midtrans notification received:', $request->all());
             
@@ -218,8 +268,9 @@ class OrderController extends Controller
                 $order = Order::where('midtrans_order_id', $orderId)->firstOrFail();
                 
                 if ($transactionStatus == 'settlement') {
-                    $order->update(['status' => 'paid']);
-                    \Log::info('Order status updated to paid via frontend callback');
+                    // UX ONLY: Redirect or show success, but DO NOT update DB here
+                    // DB update must happen via webhook for security & reliability
+                    \Log::info('Frontend callback received for order: ' . $orderId);
                 }
                 
                 return response()->json(['status' => 'success', 'source' => 'frontend']);
@@ -241,7 +292,10 @@ class OrderController extends Controller
                 ]);
                 
                 $order = Order::where('midtrans_order_id', $orderId)->firstOrFail();
-                
+                if (!$order) {
+                    \Log::error('Order not found', ['midtrans_order_id' => $notification->order_id]);
+                    return response()->json(['status' => 'error'], 404);
+                }
                 // Update status based on transaction status
                 if ($transactionStatus == 'capture') {
                     if ($fraudStatus == 'accept') {
@@ -340,5 +394,17 @@ class OrderController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function showReceipt($order_id)
+    {
+        $order = Order::with(['customer', 'orderItems.menu'])->findOrFail($order_id);
+        
+        // Security: Ensure the session owner owns this order
+        if (session('customer_token') !== $order->customer_token) {
+             abort(403, 'Unauthorized access to receipt');
+        }
+
+        return view('user.struk', compact('order'));
     }
 }
