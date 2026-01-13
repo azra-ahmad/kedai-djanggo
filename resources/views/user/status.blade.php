@@ -140,9 +140,15 @@
         <!-- Fixed Bottom Button -->
         <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 space-y-2">
             @if($order->status == 'pending')
+             <!-- Tombol Lanjutkan Pembayaran (Pending ONLY) -->
+            <button id="pay-button" class="block w-full bg-gradient-to-r from-[#EF7722] to-[#FAA533] text-white py-3 rounded-xl font-bold shadow-lg text-center mb-2">
+                Lanjutkan Pembayaran
+            </button>
+            
+            <!-- Tombol Batalkan -->
             <form action="{{ route('order.cancel', $order->id) }}" method="POST" onsubmit="return confirm('Yakin ingin membatalkan pesanan?')">
                 @csrf
-                <button type="submit" class="block w-full bg-red-600 text-white py-3 rounded-xl font-bold shadow-lg text-center mb-2">
+                <button type="submit" class="block w-full bg-red-100 text-red-600 py-3 rounded-xl font-bold text-center mb-2">
                     Batalkan Pesanan
                 </button>
             </form>
@@ -153,9 +159,42 @@
         </div>
     </div>
 
+     <!-- Snap JS -->
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+    
      <script>
         // Auto refresh every 5 seconds if pending
         @if($order->status == 'pending')
+            // Handle Pending Payment
+            const payButton = document.getElementById('pay-button');
+            if(payButton) {
+                payButton.addEventListener('click', function () {
+                    snap.pay('{{ $order->snap_token }}', {
+                        onSuccess: function (result) {
+                            // DEMO hack: force paid update
+                             fetch('/order/updatePayment/{{ $order->id }}', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Content-Type': 'application/json'
+                                }
+                            }).then(() => {
+                                location.reload();
+                            });
+                        },
+                        onPending: function (result) {
+                            location.reload();
+                        },
+                        onError: function (result) {
+                            location.reload();
+                        },
+                        onClose: function () {
+                            location.reload();
+                        }
+                    });
+                });
+            }
+
             setInterval(() => {
                 fetch('{{ route('order.status', $order->id) }}', {
                     headers: { 'Accept': 'application/json' }

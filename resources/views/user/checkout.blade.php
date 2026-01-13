@@ -18,7 +18,7 @@
     </style>
 </head>
 <body class="bg-gray-50">
-    <div class="min-h-screen pb-24">
+    <div class="min-h-screen pb-24" x-data="checkoutApp()">
         <!-- Header -->
         <div class="bg-white p-4 sticky top-0 z-10 shadow-sm">
             <div class="flex items-center gap-3">
@@ -37,33 +37,40 @@
                 + Tambah Menu Lain
             </a>
 
-            <!-- Order Items Card (Grouped: main item + extras dengan indent & harga per baris) -->
+            <!-- Order Items Card -->
             <div class="bg-white rounded-3xl shadow-sm p-6">
-                @foreach ($cart as $item)
+                <!-- Alpine Loop -->
+                <template x-for="(item, index) in cart" :key="item.id">
                     <div class="flex justify-between items-start mb-4 border-b border-gray-100 pb-4 last:border-0 last:pb-0">
                         <div class="flex-1">
-                            <h3 class="font-bold text-gray-900">{{ $item['name'] }}</h3>
+                            <h3 class="font-bold text-gray-900" x-text="item.name"></h3>
                             <div class="text-xs text-gray-500 mt-1">
-                                {{ $item['quantity'] }}x @ Rp {{ number_format($item['price'], 0, ',', '.') }}
-                                @if(!empty($item['extras']))
-                                    @foreach($item['extras'] as $extra)
-                                        <br>+ {{ $extra['quantity'] }}x {{ $extra['name'] }}
-                                    @endforeach
-                                @endif
+                                <span x-text="item.quantity + 'x @ Rp ' + (item.price).toLocaleString('id-ID')"></span>
+                                <!-- Note: Extras support simplified for this UI version -->
                             </div>
                         </div>
-                        <div class="text-right">
-                            <p class="font-bold text-gray-900">Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</p>
-                            @if(!empty($item['extras']))
-                                @foreach($item['extras'] as $extra)
-                                    <p class="text-xs text-gray-500">Rp {{ number_format($extra['price'] * $extra['quantity'], 0, ',', '.') }}</p>
-                                @endforeach
-                            @endif
+                        
+                        <div class="flex flex-col items-end gap-2">
+                            <p class="font-bold text-[#EF7722]" x-text="'Rp ' + (item.price * item.quantity).toLocaleString('id-ID')"></p>
+                            
+                            <!-- Quantity Controls -->
+                            <div class="flex items-center gap-3 bg-gray-50 rounded-full p-1">
+                                <button @click="updateQuantity(item.id, -1)" class="w-7 h-7 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-700 font-bold hover:bg-gray-100 border border-gray-200 text-sm disabled:opacity-50">
+                                    −
+                                </button>
+                                <span class="font-bold w-4 text-center text-gray-900 text-sm" x-text="item.quantity"></span>
+                                <button @click="updateQuantity(item.id, 1)" class="w-7 h-7 rounded-full bg-[#EF7722] shadow-sm flex items-center justify-center text-white font-bold hover:bg-[#d96a1e] text-sm">
+                                    +
+                                </button>
+                            </div>
                         </div>
                     </div>
-                @endforeach
+                </template>
+                
+                <div x-show="cart.length === 0" class="text-center py-4 text-gray-500">
+                    Keranjang kosong
+                </div>
             </div>
-
 
             <!-- Order Summary -->
             <div class="bg-white rounded-3xl shadow-sm p-6">
@@ -72,114 +79,135 @@
                 <div class="space-y-3 mb-6">
                     <div class="flex justify-between">
                         <span class="text-gray-600">Food Total</span>
-                        <span class="font-medium">Rp {{ number_format($subtotal ?? $total, 0, ',', '.') }}</span>
+                        <span class="font-medium" x-text="'Rp ' + total.toLocaleString('id-ID')"></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-600">Delivery</span>
-                        <span class="font-medium">Rp {{ number_format($delivery ?? 0, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Discount</span>
-                        <span class="font-medium text-green-600">-Rp {{ number_format($discount ?? 0, 0, ',', '.') }}</span>
+                        <span class="font-medium">Rp 0</span>
                     </div>
                 </div>
 
                 <div class="flex justify-between items-center pt-2">
                     <span class="text-base font-bold text-gray-900">Total Pembayaran</span>
-                    <span class="text-xl font-bold text-orange-500">Rp {{ number_format($total, 0, ',', '.') }}</span>
+                    <span class="text-xl font-bold text-orange-500" x-text="'Rp ' + total.toLocaleString('id-ID')"></span>
                 </div>
             </div>
-
-            <!-- Removed Payment Info & Order ID (Visual Cleanup) -->
         </div>
 
         <!-- Sticky Footer with Payment Button -->
         <div class="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 rounded-t-2xl border-t border-gray-100">
              <div class="flex justify-between items-center mb-3 px-1">
                 <span class="text-gray-600 font-medium">Total</span>
-                <span class="text-xl font-bold text-orange-500">Rp {{ number_format($total, 0, ',', '.') }}</span>
+                <span class="text-xl font-bold text-orange-500" x-text="'Rp ' + total.toLocaleString('id-ID')"></span>
             </div>
-            <button id="pay-button" class="w-full bg-gradient-to-r from-[#EF7722] to-[#FAA533] text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all active:scale-95">
-                Bayar Sekarang
+            <button 
+                @click="processOrder"
+                :disabled="cart.length === 0 || processing"
+                class="w-full bg-gradient-to-r from-[#EF7722] to-[#FAA533] text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2">
+                <span x-show="!processing">Bayar Sekarang</span>
+                <span x-show="processing" class="animate-pulse">Memproses...</span>
+                <svg x-show="!processing" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
             </button>
         </div>
     </div>
 
     <!-- Script Midtrans + Debug -->
     <script>
-        window.addEventListener('load', function() {
-            if (typeof snap === 'undefined') {
-                console.error('Midtrans Snap.js gagal load!');
-                alert('Midtrans tidak tersedia. Periksa koneksi atau konfigurasi.');
-                return;
-            }
+        function checkoutApp() {
+            return {
+                cart: @json(array_values($cart)),
+                total: {{ $total }},
+                processing: false,
 
-            const payButton = document.getElementById('pay-button');
+                updateQuantity(menuId, delta) {
+                    fetch('{{ route('cart.update') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            menu_id: menuId,
+                            delta: delta
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        this.cart = data.cart || [];
+                        this.calculateTotal();
+                    })
+                    .catch(() => alert('Gagal update keranjang'));
+                },
 
-            payButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                payButton.disabled = true;
-                payButton.textContent = 'Processing...';
+                calculateTotal() {
+                    this.total = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                },
 
-                // Call Backend to Create Order & Get Snap Token
-                fetch('{{ route('checkout.process') }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Order Created:', data);
+                processOrder() {
+                    this.processing = true;
                     
-                    if (data.status === 'success' && data.snap_token) {
-                        snap.pay(data.snap_token, {
-                            onSuccess: function (result) {
-                                // DEMO MODE: Call backend to confirm payment immediately
-                                fetch('/order/updatePayment/' + data.order_id, {
-                                    method: 'POST',
-                                    headers: {
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                        'Content-Type': 'application/json'
-                                    }
-                                })
-                                .then(() => {
-                                    window.location.href = '/order/status/' + data.order_id;
-                                })
-                                .catch(err => {
-                                    console.error('Demo payment update failed:', err);
-                                    window.location.href = '/order/status/' + data.order_id;
-                                });
-                            },
-                            onPending: function (result) {
-                                window.location.href = '/order/status/' + data.order_id;
-                            },
-                            onError: function (result) {
-                                window.location.href = '/order/status/' + data.order_id;
-                            },
-                            onClose: function () {
-                                window.location.href = '/order/status/' + data.order_id;
+                    fetch('{{ route('checkout.process') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({})
+                    })
+                    .then(async response => {
+                        const data = await response.json();
+                        if (!response.ok) {
+                            // Handle specific error cases
+                            if (response.status === 409 && data.redirect_url) {
+                                window.location.href = data.redirect_url;
+                                return; // Stop processing
                             }
-                        });
-                    } else {
-                        alert('Gagal membuat pesanan: ' + (data.message || 'Unknown error'));
-                        payButton.disabled = false;
-                        payButton.textContent = 'Process Order';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan saat memproses pesanan.');
-                    payButton.disabled = false;
-                    payButton.textContent = 'Process Order';
-                });
-            });
-        });
+                            throw new Error(data.message || 'Network response was not ok');
+                        }
+                        return data;
+                    })
+                    .then(data => {
+                        if(!data) return; // Handled by redirect above
+                        
+                        if (data.status === 'success' && data.snap_token) {
+                            snap.pay(data.snap_token, {
+                                onSuccess: function (result) {
+                                    fetch('/order/updatePayment/' + data.order_id, {
+                                        method: 'POST',
+                                        headers: {
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                            'Content-Type': 'application/json'
+                                        }
+                                    }).then(() => {
+                                        window.location.href = '/order/status/' + data.order_id;
+                                    });
+                                },
+                                onPending: function (result) {
+                                    window.location.href = '/order/status/' + data.order_id;
+                                },
+                                onError: function (result) {
+                                    window.location.href = '/order/status/' + data.order_id;
+                                },
+                                onClose: function () {
+                                    window.location.href = '/order/status/' + data.order_id;
+                                }
+                            });
+                        } else {
+                            alert('Gagal memproses pesanan: ' + (data.message || 'Unknown error'));
+                            this.processing = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan saat memproses pesanan.');
+                        this.processing = false;
+                    });
+                }
+            }
+        }
     </script>
 </body>
 </html>

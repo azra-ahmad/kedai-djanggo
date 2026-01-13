@@ -166,12 +166,24 @@ class OrderController extends Controller
 
     public function checkout()
     {
+        // STRICT RULE: Check for existing pending order first
+        $customer = $this->getCustomerFromSession();
+        if ($customer) {
+            $existingPendingOrder = Order::where('customer_token', session('customer_token'))
+                ->where('status', 'pending')
+                ->first();
+
+            if ($existingPendingOrder) {
+                return redirect()->route('order.status', $existingPendingOrder->id)
+                    ->with('warning', 'Kamu masih punya pesanan yang belum dibayar');
+            }
+        }
+
         $cart = Session::get('cart', []);
         if (empty($cart)) {
             return redirect()->route('menu.index')->with('error', 'Keranjang kosong!');
         }
 
-        $customer = $this->getCustomerFromSession();
         if (!$customer) {
             return redirect()->route('user.form')->with('error', 'Silakan masukkan identitas terlebih dahulu');
         }
@@ -196,6 +208,19 @@ class OrderController extends Controller
         $customer = $this->getCustomerFromSession();
         if (!$customer) {
              return response()->json(['message' => 'Customer session expired'], 401);
+        }
+
+        // STRICT RULE: Prevent duplicate pending orders
+        $existingPendingOrder = Order::where('customer_token', session('customer_token'))
+            ->where('status', 'pending')
+            ->first();
+
+        if ($existingPendingOrder) {
+             return response()->json([
+                 'status' => 'pending_exists',
+                 'message' => 'Anda memiliki pesanan yang belum dibayar',
+                 'redirect_url' => route('order.status', $existingPendingOrder->id)
+             ], 409); // Conflict
         }
 
         $total = array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $cart));
@@ -388,6 +413,7 @@ class OrderController extends Controller
         // Only allow cancel if order is still pending
         if ($order->status === 'pending') {
             $order->update(['status' => 'failed']);
+            Session::forget('cart'); // Clear cart on cancel
             return redirect()->route('menu.index')->with('success', 'Pesanan berhasil dibatalkan');
         }
         

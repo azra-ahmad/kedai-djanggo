@@ -514,7 +514,7 @@
 
                 <div class="grid grid-cols-2 gap-5">
                     @foreach ($menus as $menu)
-                    <div class="menu-card rounded-2xl overflow-hidden group relative"
+                    <div class="menu-card rounded-2xl overflow-hidden group relative flex flex-col h-full bg-white hover:shadow-lg transition-all duration-300"
                         x-data="{ 
                             product: { 
                                 id: {{ $menu->id }}, 
@@ -532,8 +532,8 @@
                             class="absolute inset-0 z-10 cursor-pointer">
                         </div>
 
-                        <div class="aspect-square bg-[#EBEBEB] relative overflow-hidden">
-                            <img src="{{ Str::startsWith($menu->gambar, 'http') ? $menu->gambar : asset('storage/menu-images/' . $menu->gambar) }}" alt="{{ $menu->nama_menu }}" class="w-full h-full object-cover transition duration-300" loading="lazy" onerror="this.src='{{ asset('images/default.jpg') }}'" >
+                        <div class="aspect-square bg-[#EBEBEB] relative overflow-hidden flex-shrink-0">
+                            <img src="{{ Str::startsWith($menu->gambar, 'http') ? $menu->gambar : asset('storage/menu-images/' . $menu->gambar) }}" alt="{{ $menu->nama_menu }}" class="w-full h-full object-cover transition duration-300 transform group-hover:scale-110" loading="lazy" onerror="this.src='{{ asset('images/default.jpg') }}'" >
                             <div class="absolute top-3 left-3 bg-white px-2.5 py-1 rounded-lg shadow-sm">
                                 <span class="text-xs font-medium text-gray-700 flex items-center gap-1">
                                     <svg class="w-3.5 h-3.5 fill-current text-[#FAA533]" viewBox="0 0 20 20">
@@ -544,11 +544,11 @@
                             </div>
                         </div>
 
-                        <div class="p-4 bg-white relative"> <!-- relative agar button di atas overlay -->
+                        <div class="p-4 bg-white relative flex flex-col flex-grow"> <!-- relative agar button di atas overlay -->
                             <h3 class="font-semibold text-gray-900 text-base mb-1.5 line-clamp-1">{{ $menu->nama_menu }}</h3>
-                            <p class="text-xs text-gray-500 mb-4 line-clamp-2 leading-relaxed">{{ $menu->description }}</p>
+                            <p class="text-xs text-gray-500 mb-4 line-clamp-2 leading-relaxed min-h-[32px]">{{ $menu->description }}</p>
 
-                            <div class="space-y-2.5">
+                            <div class="mt-auto space-y-2.5">
                                 <div class="flex items-baseline gap-1">
                                     <span class="text-lg font-bold text-gray-900">Rp {{ number_format($menu->harga, 0, ',', '.') }}</span>
                                 </div>
