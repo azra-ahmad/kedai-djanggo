@@ -32,6 +32,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/orders', [AdminController::class, 'orders'])->name('orders');
     Route::post('/order/{id}/assign', [AdminController::class, 'assignToSelf'])->name('assign');
     Route::post('/order/{id}/complete', [AdminController::class, 'completeOrder'])->name('complete');
+    Route::post('/order/{id}/fail', [AdminController::class, 'failOrder'])->name('fail');
     Route::get('/order/{id}/struk', [AdminController::class, 'generateStruk'])->name('struk');
     
     // Menu CRUD

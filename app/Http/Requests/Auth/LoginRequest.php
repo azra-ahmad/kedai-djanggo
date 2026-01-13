@@ -49,15 +49,19 @@ class LoginRequest extends FormRequest
 
         // Try to login with email
         if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->boolean('remember'))) {
-            
-            \Log::error('Login failed', [
-                'email' => $this->email,
-            ]);
-            
             RateLimiter::hit($this->throttleKey());
 
+            // Check if user exists to provide specific error message
+            $user = \App\Models\User::where('email', $this->email)->first();
+
+            if (! $user) {
+                throw ValidationException::withMessages([
+                    'email' => 'Email tidak terdaftar',
+                ]);
+            }
+
             throw ValidationException::withMessages([
-                'email' => 'The provided credentials do not match our records.',
+                'email' => 'Password salah',
             ]);
         }
 

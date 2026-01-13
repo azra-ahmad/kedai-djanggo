@@ -159,6 +159,21 @@ class AdminController extends Controller
         return back()->with('error', 'Only paid orders can be completed');
     }
 
+    public function failOrder($id)
+    {
+        $order = Order::findOrFail($id);
+
+        if ($order->status === 'pending') {
+            $order->update([
+                'status' => 'failed',
+                'admin_id' => auth()->id()
+            ]);
+            return back()->with('success', 'Order marked as failed');
+        }
+
+        return back()->with('error', 'Only pending orders can be marked as failed');
+    }
+
     public function generateStruk($id)
     {
         $order = Order::with(['customer', 'orderItems.menu'])->findOrFail($id);

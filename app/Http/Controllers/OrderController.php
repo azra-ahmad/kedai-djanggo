@@ -63,7 +63,10 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'phone' => 'required|string|max:20',
+            'phone' => 'required|numeric|digits_between:10,15',
+        ], [
+            'phone.numeric' => 'Nomor telepon harus berupa angka',
+            'phone.digits_between' => 'Nomor telepon minimal 10 digit dan maksimal 15 digit'
         ]);
 
         // ALWAYS create a new customer record for every session

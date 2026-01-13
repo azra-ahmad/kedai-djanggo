@@ -164,12 +164,12 @@
                     </div>
                 </div>
                 <div class="flex gap-3">
-                    <button class="flex items-center gap-2 glass-card text-gray-700 px-5 py-2.5 rounded-xl font-semibold hover-lift shadow-sm">
+                    <!-- <button class="flex items-center gap-2 glass-card text-gray-700 px-5 py-2.5 rounded-xl font-semibold hover-lift shadow-sm">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                         Export
-                    </button>
+                    </button> -->
                     <button class="flex items-center gap-2 btn-primary text-white px-5 py-2.5 rounded-xl font-bold shadow-lg">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -405,6 +405,18 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                             </svg>
                                             Complete
+                                        </button>
+                                    </form>
+                                    @endif
+
+                                    @if($order->status == 'pending')
+                                    <form action="{{ route('admin.fail', $order->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini? Status akan menjadi Failed.');">
+                                        @csrf
+                                        <button class="flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-xl text-xs font-bold hover-lift transition-all shadow-md">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                            Batalkan
                                         </button>
                                     </form>
                                     @endif
