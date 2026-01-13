@@ -175,54 +175,80 @@ class OrderController extends Controller
 
         $total = array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $cart));
 
-        // SINGLE SOURCE OF TRUTH: Generate midtrans_order_id ONCE here
-        // Format: KDJ-{timestamp} as required
-        $midtransOrderId = 'KDJ-' . time();
+        // Note: Order is NOT created here anymore. 
+        // usage: processCheckout will handle creation.
+        
+        return view('user.checkout', compact('cart', 'total', 'customer'));
+    }
 
-        $order = Order::create([
-            'customer_id' => $customer->id,
-            'customer_token' => session('customer_token'),
-            'status' => 'pending',
-            'total_harga' => $total,
-            'midtrans_order_id' => $midtransOrderId,
-        ]);
-
-        // Removed redundant update call
-        // $order->update(['midtrans_order_id' => ...]);
-
-
-        foreach ($cart as $menu_id => $item) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'menu_id' => $menu_id,
-                'jumlah' => $item['quantity'],
-                'subtotal' => $item['price'] * $item['quantity'],
-            ]);
+    public function processCheckout(Request $request)
+    {
+        $cart = Session::get('cart', []);
+        
+        // Re-validate state
+        if (empty($cart)) {
+             return response()->json(['message' => 'Cart is empty'], 400);
         }
 
-        Config::$serverKey = config('services.midtrans.server_key');
-        Config::$isProduction = config('services.midtrans.is_production');
-        Config::$isSanitized = true;
-        Config::$is3ds = true;
+        $customer = $this->getCustomerFromSession();
+        if (!$customer) {
+             return response()->json(['message' => 'Customer session expired'], 401);
+        }
 
-        $params = [
-            'transaction_details' => [
-                'order_id' => $order->midtrans_order_id,
-                'gross_amount' => $total,
-            ],
-            'customer_details' => [
-                'first_name' => $customer->name,
-                'phone' => $customer->phone,
-            ],
-        ];
+        $total = array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $cart));
 
-        $snapToken = Snap::getSnapToken($params);
-        $order->update(['snap_token' => $snapToken]);
+        try {
+            // SINGLE SOURCE OF TRUTH: Generate midtrans_order_id ONCE here
+            // Format: KDJ-{timestamp} as required
+            $midtransOrderId = 'KDJ-' . time();
 
-        // JANGAN clear cart dulu, biarkan sampai payment sukses atau cancel
-        // Session::forget('cart');
+            $order = Order::create([
+                'customer_id' => $customer->id,
+                'customer_token' => session('customer_token'),
+                'status' => 'pending',
+                'total_harga' => $total,
+                'midtrans_order_id' => $midtransOrderId,
+            ]);
 
-        return view('user.checkout', compact('order', 'cart', 'total'));
+            foreach ($cart as $menu_id => $item) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'menu_id' => $menu_id,
+                    'jumlah' => $item['quantity'],
+                    'subtotal' => $item['price'] * $item['quantity'],
+                ]);
+            }
+
+            Config::$serverKey = config('services.midtrans.server_key');
+            Config::$isProduction = config('services.midtrans.is_production');
+            Config::$isSanitized = true;
+            Config::$is3ds = true;
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $order->midtrans_order_id,
+                    'gross_amount' => $total,
+                ],
+                'customer_details' => [
+                    'first_name' => $customer->name,
+                    'phone' => $customer->phone,
+                ],
+            ];
+
+            $snapToken = Snap::getSnapToken($params);
+            $order->update(['snap_token' => $snapToken]);
+
+            return response()->json([
+                'status' => 'success',
+                'snap_token' => $snapToken,
+                'order_id' => $order->id,
+                'midtrans_order_id' => $order->midtrans_order_id
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Checkout Error: ' . $e->getMessage());
+             return response()->json(['message' => 'Checkout failed'], 500);
+        }
     }
 
     public function status($order_id)
@@ -292,10 +318,9 @@ class OrderController extends Controller
                 ]);
                 
                 $order = Order::where('midtrans_order_id', $orderId)->firstOrFail();
-                if (!$order) {
-                    \Log::error('Order not found', ['midtrans_order_id' => $notification->order_id]);
-                    return response()->json(['status' => 'error'], 404);
-                }
+                
+                \Log::info('Order found for webhook:', ['db_id' => $order->id, 'midtrans_id' => $order->midtrans_order_id]);
+
                 // Update status based on transaction status
                 if ($transactionStatus == 'capture') {
                     if ($fraudStatus == 'accept') {
@@ -306,7 +331,10 @@ class OrderController extends Controller
                     $order->update(['status' => 'paid']);
                     \Log::info('Order status updated to paid (settlement)');
                 } elseif ($transactionStatus == 'pending') {
-                    $order->update(['status' => 'pending']);
+                    // Do not revert to pending if already paid (idempotency)
+                    if ($order->status !== 'paid') {
+                        $order->update(['status' => 'pending']);
+                    }
                     \Log::info('Order status kept as pending');
                 } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
                     $order->update(['status' => 'failed']);
@@ -369,32 +397,22 @@ class OrderController extends Controller
         return response()->json(['message' => 'Cart cleared', 'cart_count' => 0]);
     }
 
-    public function updatePaymentStatus(Request $request, $order_id)
+    // DEMO MODE ONLY - REMOVE AFTER PRESENTATION
+    public function updatePaymentStatus(Request $request, $id)
     {
-        try {
-            $order = Order::findOrFail($order_id);
-            
-            $status = $request->input('status', 'paid');
-            $order->update(['status' => $status]);
-            
-            \Log::info('Payment status updated manually:', [
-                'order_id' => $order->midtrans_order_id,
-                'status' => $status
-            ]);
-            
-            return response()->json([
-                'status' => 'success',
-                'order_status' => $order->status,
-                'message' => 'Payment status updated successfully'
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Error updating payment status: ' . $e->getMessage());
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+        $order = Order::findOrFail($id);
+
+        if ($order->status !== 'paid') {
+            $order->update(['status' => 'paid']);
         }
+
+        Session::forget('cart');
+
+        return response()->json([
+            'success' => true
+        ]);
     }
+
 
     public function showReceipt($order_id)
     {

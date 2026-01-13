@@ -112,7 +112,7 @@
             <div class="bg-white rounded-3xl shadow-sm p-4">
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600">ID Pesanan</span>
-                    <span class="font-bold text-gray-900">{{ $order->midtrans_order_id }}</span>
+                    <span class="font-bold text-gray-900">-</span>
                 </div>
             </div>
         </div>
@@ -134,43 +134,70 @@
                 return;
             }
 
-            const snapToken = '{{ $order->snap_token }}';
-            console.log('Snap Token:', snapToken);
-            if (!snapToken || snapToken.trim() === '') {
-                console.error('Snap token kosong!');
-                document.getElementById('pay-button').disabled = true;
-                document.getElementById('pay-button').textContent = 'Token Tidak Tersedia';
-                return;
-            }
+            const payButton = document.getElementById('pay-button');
 
-            document.getElementById('pay-button').addEventListener('click', function(e) {
+            payButton.addEventListener('click', function(e) {
                 e.preventDefault();
-                console.log('Tombol diklik, memanggil snap.pay...');
+                payButton.disabled = true;
+                payButton.textContent = 'Processing...';
 
-                snap.pay(snapToken, {
-                    onSuccess: function () {
-                        fetch('{{ route('order.updatePayment', $order->id) }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ status: 'paid' })
-                        }).then(() => {
-                            window.location.href = '{{ route('order.status', $order->id) }}';
-                        });
-                    },
-                    onPending: function () {
-                        window.location.href = '{{ route('order.status', $order->id) }}';
-                    },
-                    onError: function () {
-                        window.location.href = '{{ route('order.status', $order->id) }}';
-                    },
-                    onClose: function () {
-                        window.location.href = '{{ route('order.status', $order->id) }}';
+                // Call Backend to Create Order & Get Snap Token
+                fetch('{{ route('checkout.process') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Order Created:', data);
+                    
+                    if (data.status === 'success' && data.snap_token) {
+                        snap.pay(data.snap_token, {
+                            onSuccess: function (result) {
+                                // DEMO MODE: Call backend to confirm payment immediately
+                                fetch('/order/updatePayment/' + data.order_id, {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                        'Content-Type': 'application/json'
+                                    }
+                                })
+                                .then(() => {
+                                    window.location.href = '/order/status/' + data.order_id;
+                                })
+                                .catch(err => {
+                                    console.error('Demo payment update failed:', err);
+                                    window.location.href = '/order/status/' + data.order_id;
+                                });
+                            },
+                            onPending: function (result) {
+                                window.location.href = '/order/status/' + data.order_id;
+                            },
+                            onError: function (result) {
+                                window.location.href = '/order/status/' + data.order_id;
+                            },
+                            onClose: function () {
+                                window.location.href = '/order/status/' + data.order_id;
+                            }
+                        });
+                    } else {
+                        alert('Gagal membuat pesanan: ' + (data.message || 'Unknown error'));
+                        payButton.disabled = false;
+                        payButton.textContent = 'Process Order';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat memproses pesanan.');
+                    payButton.disabled = false;
+                    payButton.textContent = 'Process Order';
                 });
-
             });
         });
     </script>

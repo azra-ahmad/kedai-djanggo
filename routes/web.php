@@ -16,12 +16,13 @@ Route::post('/update-quantity', [OrderController::class, 'updateQuantity'])->nam
 Route::post('/clear-cart', [OrderController::class, 'clearCart'])->name('cart.clear');
 Route::get('/cart', [OrderController::class, 'cart'])->name('cart.index');
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
+Route::post('/checkout/process', [OrderController::class, 'processCheckout'])->name('checkout.process');
 Route::get('/order/status/{order_id}', [OrderController::class, 'status'])->name('order.status');
 Route::get('/order/{order_id}/receipt', [OrderController::class, 'showReceipt'])->name('order.receipt');
 Route::post('/order/{order_id}/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancel');
-Route::post('/order/{order_id}/update-payment', [OrderController::class, 'updatePaymentStatus'])->name('order.updatePayment');
 Route::post('/midtrans/notification', [OrderController::class, 'notificationHandler'])->name('midtrans.notification');
 Route::get('/orders', [OrderController::class, 'orders'])->name('orders.index');
+Route::post('/order/updatePayment/{id}', [OrderController::class, 'updatePaymentStatus'])->name('order.updatePayment'); // DEMO ONLY
 
 // Admin Routes - Protected dengan middleware auth + admin check
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {

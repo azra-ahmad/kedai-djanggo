@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
+
+        // TRUST PROXIES (Required for ngrok/LB)
+        // $middleware->trustProxies(at: '*');
         
         // Exclude Midtrans webhook from CSRF protection
         $middleware->validateCsrfTokens(except: [

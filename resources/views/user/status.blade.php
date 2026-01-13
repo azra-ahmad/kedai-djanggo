@@ -156,33 +156,6 @@
     </div>
 
      <script>
-        function simulatePayment() {
-            if (confirm('Simulasi pembayaran berhasil?')) {
-                fetch('{{ route('order.updatePayment', $order->id) }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        status: 'paid'
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                .then(data => {
-                    console.log('Payment updated:', data);
-                    // Server will handle cart clearing on next reload
-                    alert('Pembayaran berhasil! Pesanan sedang diproses.');
-                    location.reload();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error updating status');
-                });
-            }
-        }
-
         // Auto refresh every 5 seconds if pending
         @if($order->status == 'pending')
             setInterval(() => {

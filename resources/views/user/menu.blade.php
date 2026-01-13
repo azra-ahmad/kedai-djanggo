@@ -506,7 +506,7 @@
                                 price: {{ $menu->harga }}, 
                                 category: '{{ $menu->kategori_menu }}', 
                                 description: '{{ $menu->description }}', 
-                                image: '{{ $menu->gambar ? asset('storage/menu-images/' . $menu->gambar) : asset('images/default-menu.jpg') }}' 
+                                image: '{{ Str::startsWith($menu->gambar, 'http') ? $menu->gambar : ($menu->gambar ? asset('storage/menu-images/' . $menu->gambar) : asset('images/default.jpg')) }}' 
                             }
                         }"
                         x-show="currentCategory === 'all' || currentCategory === '{{ $menu->kategori_menu }}'">
@@ -517,9 +517,7 @@
                         </div>
 
                         <div class="aspect-square bg-[#EBEBEB] relative overflow-hidden">
-                            <img src="{{ $menu->gambar ? asset('storage/menu-images/' . $menu->gambar) : asset('images/default-menu.jpg') }}" 
-                                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-                                alt="{{ $menu->nama_menu }}">
+                            <img src="{{ Str::startsWith($menu->gambar, 'http') ? $menu->gambar : asset('storage/menu-images/' . $menu->gambar) }}" alt="{{ $menu->nama_menu }}" class="w-full h-full object-cover transition duration-300" onerror="this.src='{{ asset('images/default.jpg') }}'" >
                             <div class="absolute top-3 left-3 bg-white px-2.5 py-1 rounded-lg shadow-sm">
                                 <span class="text-xs font-medium text-gray-700 flex items-center gap-1">
                                     <svg class="w-3.5 h-3.5 fill-current text-[#FAA533]" viewBox="0 0 20 20">
