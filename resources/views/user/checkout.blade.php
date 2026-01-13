@@ -32,36 +32,31 @@
         </div>
 
         <div class="p-4 space-y-4">
+            <!-- Add Menu Button -->
+            <a href="{{ route('menu.index') }}" class="block w-full mb-6 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold text-center border-2 border-[#EBEBEB] hover:bg-gray-200 transition-all">
+                + Tambah Menu Lain
+            </a>
+
             <!-- Order Items Card (Grouped: main item + extras dengan indent & harga per baris) -->
             <div class="bg-white rounded-3xl shadow-sm p-6">
                 @foreach ($cart as $item)
-                    <div class="flex gap-4 items-start mb-6 last:mb-0">
-                        <!-- Item Image (gunakan placeholder atau asset nyata) -->
-                        <div class="w-20 h-20 bg-orange-100 rounded-2xl flex-shrink-0 overflow-hidden">
-                            <img src="{{ $item['image'] ?? asset('images/default-menu.jpg') }}" 
-                                alt="{{ $item['name'] }}" 
-                                class="w-full h-full object-cover">    
-                        </div>
-                        
-                        <!-- Item Details -->
+                    <div class="flex justify-between items-start mb-4 border-b border-gray-100 pb-4 last:border-0 last:pb-0">
                         <div class="flex-1">
-                            <h3 class="font-bold text-lg text-gray-900 mb-1">{{ $item['name'] }}</h3>
-                            <div class="text-sm text-gray-500 space-y-1">
-                                <p>{{ $item['quantity'] }}x {{ $item['name'] }}</p>
+                            <h3 class="font-bold text-gray-900">{{ $item['name'] }}</h3>
+                            <div class="text-xs text-gray-500 mt-1">
+                                {{ $item['quantity'] }}x @ Rp {{ number_format($item['price'], 0, ',', '.') }}
                                 @if(!empty($item['extras']))
                                     @foreach($item['extras'] as $extra)
-                                        <p class="pl-6">{{ $extra['quantity'] }}x {{ $extra['name'] }}</p>
+                                        <br>+ {{ $extra['quantity'] }}x {{ $extra['name'] }}
                                     @endforeach
                                 @endif
                             </div>
                         </div>
-
-                        <!-- Prices aligned per line -->
-                        <div class="text-right text-sm">
+                        <div class="text-right">
                             <p class="font-bold text-gray-900">Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</p>
                             @if(!empty($item['extras']))
                                 @foreach($item['extras'] as $extra)
-                                    <p class="text-gray-500">Rp {{ number_format($extra['price'] * $extra['quantity'], 0, ',', '.') }}</p>
+                                    <p class="text-xs text-gray-500">Rp {{ number_format($extra['price'] * $extra['quantity'], 0, ',', '.') }}</p>
                                 @endforeach
                             @endif
                         </div>
@@ -89,38 +84,23 @@
                     </div>
                 </div>
 
-                <div class="flex justify-between items-center pt-4 border-t-thick">
-                    <span class="text-lg font-bold text-gray-900">Total Pembayaran</span>
-                    <span class="text-2xl font-bold text-orange-500">Rp {{ number_format($total, 0, ',', '.') }}</span>
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-base font-bold text-gray-900">Total Pembayaran</span>
+                    <span class="text-xl font-bold text-orange-500">Rp {{ number_format($total, 0, ',', '.') }}</span>
                 </div>
             </div>
 
-            <!-- Payment Info -->
-            <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-4">
-                <div class="flex items-start gap-3">
-                    <svg class="w-6 h-6 text-orange-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div>
-                        <p class="font-semibold text-gray-900 mb-1">Informasi Pembayaran</p>
-                        <p class="text-sm text-gray-600">Setelah klik tombol bayar, Anda akan diarahkan ke halaman pembayaran Midtrans. Pilih metode pembayaran yang tersedia.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Order ID Info -->
-            <div class="bg-white rounded-3xl shadow-sm p-4">
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">ID Pesanan</span>
-                    <span class="font-bold text-gray-900">-</span>
-                </div>
-            </div>
+            <!-- Removed Payment Info & Order ID (Visual Cleanup) -->
         </div>
 
-        <!-- Fixed Payment Button -->
-        <div class="fixed bottom-0 left-0 right-0 bg-white px-4 py-4 shadow-lg">
-            <button id="pay-button" class="w-full bg-orange-500 text-white py-4 rounded-full font-bold text-base shadow-lg hover:bg-orange-600 transition">
-                Process Order
+        <!-- Sticky Footer with Payment Button -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 rounded-t-2xl border-t border-gray-100">
+             <div class="flex justify-between items-center mb-3 px-1">
+                <span class="text-gray-600 font-medium">Total</span>
+                <span class="text-xl font-bold text-orange-500">Rp {{ number_format($total, 0, ',', '.') }}</span>
+            </div>
+            <button id="pay-button" class="w-full bg-gradient-to-r from-[#EF7722] to-[#FAA533] text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all active:scale-95">
+                Bayar Sekarang
             </button>
         </div>
     </div>

@@ -314,7 +314,7 @@
             inset: 0;
             background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(8px);
-            z-index: 40;
+            z-index: 59;
         }
 
         .cart-panel {
@@ -326,7 +326,7 @@
             border-radius: 32px 32px 0 0;
             max-height: 85vh;
             overflow-y: auto;
-            z-index: 50;
+            z-index: 60;
             transform: translateY(100%);
             transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             box-shadow: 0 -12px 48px rgba(239, 119, 34, 0.2);
@@ -423,7 +423,7 @@
 </head>
 
 <body class="bg-gradient-to-br from-white via-[#EBEBEB] to-white" x-data="app()" x-init="init()">
-    <div id="mainApp" class="min-h-screen">
+    <div id="mainApp">
         <div id="homeScreen" class="pb-24">
             <!-- Header -->
             <div class="header-gradient px-5 pt-6 pb-5 fixed top-0 left-0 right-0 z-50 shadow-lg">
@@ -484,8 +484,24 @@
                 </div>
             </div>
 
+            <!-- SKELETON LOADER (Visual Only) -->
+            <template x-if="loading">
+                <div class="px-5 py-4 grid grid-cols-2 gap-5">
+                    <template x-for="i in 4">
+                        <div class="rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-sm animate-pulse">
+                            <div class="aspect-square bg-gray-200"></div>
+                            <div class="p-4 space-y-3">
+                                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                                <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                                <div class="h-8 bg-gray-200 rounded w-full mt-2"></div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
             <!-- Menu Items -->
-           <div class="px-5 py-4">
+           <div class="px-5 pb-5">
                 <div class="flex items-center justify-between mb-5">
                     <h2 class="text-lg font-semibold text-gray-900">Menu Spesial</h2>
                     <div class="flex items-center gap-1.5 bg-[#EBEBEB] px-3 py-1.5 rounded-full">
@@ -509,7 +525,7 @@
                                 image: '{{ Str::startsWith($menu->gambar, 'http') ? $menu->gambar : ($menu->gambar ? asset('storage/menu-images/' . $menu->gambar) : asset('images/default.jpg')) }}' 
                             }
                         }"
-                        x-show="currentCategory === 'all' || currentCategory === '{{ $menu->kategori_menu }}'">
+                        x-show="!loading && (currentCategory === 'all' || currentCategory === '{{ $menu->kategori_menu }}')">
 
                         <!-- Clickable Area untuk Detail Modal (hanya gambar + teks, bukan button) -->
                         <div @click="currentProduct = product; detailModal = true"
@@ -517,7 +533,7 @@
                         </div>
 
                         <div class="aspect-square bg-[#EBEBEB] relative overflow-hidden">
-                            <img src="{{ Str::startsWith($menu->gambar, 'http') ? $menu->gambar : asset('storage/menu-images/' . $menu->gambar) }}" alt="{{ $menu->nama_menu }}" class="w-full h-full object-cover transition duration-300" onerror="this.src='{{ asset('images/default.jpg') }}'" >
+                            <img src="{{ Str::startsWith($menu->gambar, 'http') ? $menu->gambar : asset('storage/menu-images/' . $menu->gambar) }}" alt="{{ $menu->nama_menu }}" class="w-full h-full object-cover transition duration-300" loading="lazy" onerror="this.src='{{ asset('images/default.jpg') }}'" >
                             <div class="absolute top-3 left-3 bg-white px-2.5 py-1 rounded-lg shadow-sm">
                                 <span class="text-xs font-medium text-gray-700 flex items-center gap-1">
                                     <svg class="w-3.5 h-3.5 fill-current text-[#FAA533]" viewBox="0 0 20 20">
@@ -551,6 +567,7 @@
                     @endforeach
                 </div>
             </div>
+        </div>
         </div>
 
         <!-- ABOUT SCREEN -->
@@ -772,93 +789,39 @@
             </div>
         </div>
 
-        <!-- FLOATING CART BUTTON -->
-        <button
+        <!-- FLOATING CART PILL (Fixed above Nav) -->
+        <a href="{{ route('checkout') }}"
             x-show="cartCount > 0"
-            @click="showCartPanel = true"
-            class="floating-cart-btn text-white p-3 rounded-full shadow-lg flex items-center justify-center border border-[#EBEBEB] transition-shadow"
-            x-transition>
-            <div class="relative">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                </svg>
-                <span class="absolute -top-2 -right-2 bg-[#000000] text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center" x-text="cartCount"></span>
-            </div>
-        </button>
-
-        <!-- CART OVERLAY & PANEL -->
-        <div x-show="showCartPanel" @click="showCartPanel = false" class="cart-overlay" x-transition x-cloak></div>
-
-        <div x-show="showCartPanel" class="cart-panel custom-scrollbar" :class="{ 'show': showCartPanel }" x-cloak>
-            <div class="sticky top-0 bg-white border-b-2 border-[#EBEBEB] p-5 flex items-center justify-between z-10">
-                <h2 class="text-xl font-display font-bold gradient-text">Keranjang Saya</h2>
-                <button @click="showCartPanel = false" class="p-2 hover:bg-[#EBEBEB] rounded-full transition-all">
-                    <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            class="fixed bottom-[90px] left-4 right-4 z-50 bg-gradient-to-r from-[#EF7722] to-[#FAA533] text-white p-4 rounded-full shadow-xl flex items-center justify-between border border-[#EBEBEB] transition-transform active:scale-95"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="translate-y-20 opacity-0"
+            x-transition:enter-end="translate-y-0 opacity-100"
+            x-transition:leave="transition ease-in duration-300"
+            x-transition:leave-start="translate-y-0 opacity-100"
+            x-transition:leave-end="translate-y-20 opacity-0">
+            
+            <div class="flex items-center gap-3">
+                <div class="bg-white/20 p-2 rounded-full">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
-                </button>
+                </div>
+                <div class="flex flex-col items-start leading-none">
+                    <span class="text-xs font-medium text-white/90" x-text="cartCount + ' Menu'"></span>
+                    <span class="text-lg font-bold" x-text="'Rp ' + (total || 0).toLocaleString('id-ID')"></span>
+                </div>
             </div>
 
-            <div class="p-5">
-                <div class="bg-gradient-to-r from-[#EBEBEB] to-white rounded-2xl p-4 mb-5 border-2 border-[#EF7722] shadow-inner">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md">
-                            <svg class="w-6 h-6 text-[#EF7722]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <span class="text-sm font-bold text-gray-900 block">Estimasi Penyajian</span>
-                            <p class="text-xs text-gray-600 font-semibold">⚡ 15-20 menit • 🍽️ Diantar ke meja</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="space-y-4 mb-5">
-                    <template x-for="item in cart" :key="item.id">
-                        <div class="bg-white rounded-2xl p-4 flex gap-4 border-2 border-[#EBEBEB] shadow-lg hover:shadow-xl transition-all">
-                            <img :src="item.image || '{{ asset('images/default-menu.jpg') }}'" 
-                                class="w-24 h-24 rounded-xl object-cover border-2 border-[#EF7722] shadow-md">     
-                            <div class="flex-1">
-                                <h4 class="font-bold text-gray-900 mb-1 text-sm" x-text="item.name"></h4>
-                                <p class="gradient-text font-bold mb-3 text-base" x-text="'Rp ' + (item.price * item.quantity).toLocaleString('id-ID')"></p>
-                                <div class="flex items-center gap-3">
-                                    <button @click="updateQuantity(item.id, -1)" class="w-9 h-9 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-700 font-bold hover:from-gray-200 hover:to-gray-300 shadow-md">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12H4"></path>
-                                        </svg>
-                                    </button>
-                                    <span class="font-bold w-10 text-center text-gray-900 text-lg" x-text="item.quantity"></span>
-                                    <button @click="updateQuantity(item.id, 1)" class="w-9 h-9 rounded-full bg-gradient-to-br from-[#EF7722] to-[#FAA533] flex items-center justify-center text-white font-bold hover:shadow-lg shadow-md">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-
-                <button @click="showCartPanel = false" class="w-full btn-secondary py-4 rounded-2xl mb-5 text-sm font-bold">
-                    + Tambah Menu Lagi
-                </button>
-
-                <div class="bg-gradient-to-br from-[#EBEBEB] via-white to-[#EBEBEB] rounded-3xl p-6 space-y-3 mb-6 border-2 border-[#EF7722] shadow-xl">
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-gray-900 text-lg">Total Pembayaran</span>
-                        <span class="font-bold text-3xl gradient-text" x-text="'Rp' + total.toLocaleString('id-ID')"></span>
-                    </div>
-                </div>
-
-                <a href="{{ route('checkout') }}" class="block w-full btn-primary py-5 rounded-2xl text-base text-center font-bold shadow-2xl">
-                    Lanjut ke Pembayaran →
-                </a>
+            <div class="flex items-center gap-2 font-bold text-sm">
+                Lanjut Bayar
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
             </div>
-        </div>
+        </a>
 
         <!-- ENHANCED BOTTOM NAV -->
-        <div class="bottom-nav fixed bottom-0 left-0 right-0 px-6 py-4 flex justify-around z-20">
+        <div class="bottom-nav fixed bottom-0 left-0 right-0 px-6 py-4 flex justify-around z-40">
             <button @click="switchTab('home')" class="nav-item flex flex-col items-center gap-1.5" :class="{ 'active': currentTab === 'home' }">
                 <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -891,6 +854,7 @@
                 cartCount: 0,
                 currentTab: 'home',
                 total: 0,
+                loading: true,
 
                 init() {
                     this.loadCart();
@@ -898,6 +862,7 @@
                         this.loadCart();
                         this.detailModal = false;
                     });
+                    setTimeout(() => this.loading = false, 800); // Falback skeleton fade out
                 },
 
                 loadCart() {
