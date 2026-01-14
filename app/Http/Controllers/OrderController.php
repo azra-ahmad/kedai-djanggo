@@ -137,10 +137,8 @@ class OrderController extends Controller
         $cart = Session::get('cart', []);
         $menu = Menu::findOrFail($request->menu_id);
 
-        // BUAT URL GAMBAR LENGKAP
-        $imagePath = $menu->gambar 
-            ? asset('storage/menu-images/' . $menu->gambar) 
-            : asset('images/default-menu.jpg');
+        // BUAT URL GAMBAR LENGKAP MENGGUNAKAN ACCESSOR
+        $imagePath = $menu->image_url;
 
         if (isset($cart[$menu->id])) {
             $cart[$menu->id]['quantity'] += $request->quantity;

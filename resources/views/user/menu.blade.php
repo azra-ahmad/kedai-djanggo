@@ -30,91 +30,55 @@
 
         /* Category Cards */
         .category-card {
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.2s ease, background-color 0.2s;
             background: #FFFFFF;
-            border: 2px solid transparent;
+            border: 1px solid #f3f4f6; /* Simplified border */
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Optimized shadow */
         }
 
-        .category-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
-            transition: left 0.5s;
-        }
-
-        .category-card:hover::before {
-            left: 100%;
-        }
+        /* Removed complex hover effect with ::before gradient */
 
         .category-card:hover {
-            transform: translateY(-8px) scale(1.05);
-            box-shadow: 0 20px 40px rgba(239, 119, 34, 0.25);
+            transform: translateY(-4px);
             border-color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Tailwind shadow-md */
         }
 
         .category-card.active {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             border-color: var(--primary);
-            box-shadow: 0 12px 32px rgba(239, 119, 34, 0.4);
-            transform: scale(1.08);
+            box-shadow: 0 4px 6px rgba(239, 119, 34, 0.3); /* Simplified shadow */
+            transform: scale(1.05);
         }
 
-        .category-card.active::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(239, 119, 34, 0.8), transparent);
-            transition: left 0.5s;
-        }
-
-        .category-card.active:hover::before {
-            left: 100%;
-        }
+        /* Removed complex active::before gradient */
 
         /* Menu Cards */
         .menu-card {
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.2s ease; /* Faster transition */
             background: #FFFFFF;
-            border: 2px solid var(--light);
+            border: 1px solid #f3f4f6;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Lighter shadow */
         }
 
-        .menu-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(239, 119, 34, 0.1) 0%, rgba(250, 165, 51, 0.2) 100%);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
+        /* Removed menu-card::after gradient overlay */
 
         .menu-card:hover {
-            box-shadow: 0 24px 48px rgba(239, 119, 34, 0.3);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); /* Tailwind shadow-xl equivalent */
             border-color: var(--primary);
             z-index: 10;
         }
 
         .menu-card img {
-            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.3s ease; /* Faster */
         }
 
         .menu-card:hover img {
-            transform: scale(1.15);
+            transform: scale(1.05); /* Less zoom */
         }
 
         /* Add to Cart Button */
@@ -124,7 +88,7 @@
             left: 50%;
             transform: translateX(-50%);
             opacity: 0;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.2s ease;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
         }
 
@@ -133,60 +97,43 @@
             opacity: 1;
         }
 
-        /* Bottom Nav */
+        /* Bottom Nav - Optimized: Removed blur & shimmer */
         .bottom-nav {
-            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.08);
-            background: #FFFFFF;
-            backdrop-filter: blur(20px);
-            border-top: 2px solid var(--light);
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.98); /* High opacity solid color instead of blur */
+            border-top: 1px solid #f3f4f6;
             position: relative;
         }
 
-        .bottom-nav::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--primary), transparent);
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
+        /* Removed shimmer animation */
 
         .nav-item {
             position: relative;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.2s ease;
         }
 
         .nav-item:hover {
-            transform: translateY(-4px);
+            transform: translateY(-2px);
         }
 
         .nav-item.active {
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
 
         .nav-item.active::before {
             content: '';
             position: absolute;
-            top: -2px;
+            top: -1px;
             left: 50%;
             transform: translateX(-50%);
             width: 32px;
             height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            background: var(--primary); /* Solid color is faster */
             border-radius: 0 0 3px 3px;
-            box-shadow: 0 2px 8px rgba(239, 119, 34, 0.5);
         }
 
         .nav-item.active svg {
             color: var(--primary);
-            filter: drop-shadow(0 2px 8px rgba(239, 119, 34, 0.4));
         }
 
         .nav-item.active span {
@@ -194,27 +141,21 @@
             font-weight: 700;
         }
 
-        /* Floating Cart */
+        /* Floating Cart - Optimized: Removed float animation */
         .floating-cart-btn {
             position: fixed;
             bottom: 88px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 30;
-            box-shadow: 0 12px 40px rgba(239, 119, 34, 0.35);
+            box-shadow: 0 4px 6px rgba(239, 119, 34, 0.4); /* Lighter shadow */
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-8px); }
+            /* Animation removed for performance */
         }
 
         .floating-cart-btn:hover {
-            box-shadow: 0 16px 56px rgba(239, 119, 34, 0.5);
-            animation: none;
-            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(239, 119, 34, 0.5);
+            transform: translateX(-50%) scale(1.02);
         }
 
         .floating-cart-btn.hidden {
@@ -224,35 +165,24 @@
 
         /* Price Tag */
         .price-tag {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: var(--primary); /* Solid color */
             color: #FFFFFF;
             padding: 8px 14px;
             border-radius: 12px;
             display: inline-block;
             font-weight: 800;
-            border: 2px solid var(--secondary);
-            box-shadow: 0 4px 12px rgba(239, 119, 34, 0.3);
             position: relative;
             overflow: hidden;
         }
 
-        .price-tag::before {
-            content: '💰';
-            position: absolute;
-            left: -20px;
-            opacity: 0.3;
-            font-size: 24px;
-        }
-
         /* Header */
         .header-gradient {
-            background: #FFFFFF;
-            border-bottom: 3px solid transparent;
-            border-image: linear-gradient(90deg, transparent, var(--primary), transparent) 1;
-            box-shadow: 0 4px 16px rgba(239, 119, 34, 0.1);
+            background: rgba(255, 255, 255, 0.98); /* High opacity */
+            border-bottom: 1px solid #f3f4f6;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
-        /* About Hero */
+        /* About Hero - Optimized: Removed infinite rotation */
         .about-hero {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             position: relative;
@@ -266,35 +196,25 @@
             opacity: 0.1;
             top: -50px;
             right: -50px;
-            animation: rotate 20s linear infinite;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            /* Animation removed */
         }
 
         /* Feature Cards */
         .feature-card {
             background: #FFFFFF;
-            border: 2px solid var(--light);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid #f3f4f6;
+            transition: transform 0.2s ease;
         }
 
         .feature-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 16px 40px rgba(239, 119, 34, 0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             border-color: var(--primary);
         }
 
         .feature-icon {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            animation: pulse-soft 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse-soft {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            /* Animation pulse removed */
         }
 
         /* Scrollbar */
@@ -304,7 +224,7 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #FFFFFF; }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            background: #d1d5db; /* Gray-300 simple color */
             border-radius: 3px;
         }
 
@@ -313,7 +233,7 @@
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(8px);
+            /* Backdrop blur removed */
             z-index: 59;
         }
 
@@ -322,54 +242,47 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(180deg, #FFFFFF 0%, var(--light) 100%);
-            border-radius: 32px 32px 0 0;
+            background: #FFFFFF;
+            border-radius: 24px 24px 0 0;
             max-height: 85vh;
             overflow-y: auto;
             z-index: 60;
             transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 -12px 48px rgba(239, 119, 34, 0.2);
-            border-top: 3px solid var(--primary);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Standard eased transition */
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid var(--primary);
         }
 
         .cart-panel.show {
             transform: translateY(0);
         }
 
-        /* Animations */
+        /* Animations - Simplified */
         @keyframes slideUp {
             from { transform: translateY(100%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
 
-        .slide-up { animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .slide-up { animation: slideUp 0.3s ease-out; }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        .fade-in { animation: fadeIn 0.5s ease-out; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
 
-        /* Badge */
+        /* Badge - Optimized: Removed blur */
         .badge {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(12px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-            border: 1px solid rgba(239, 119, 34, 0.3);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(239, 119, 34, 0.2);
         }
 
-        /* Logo */
+        /* Logo - Optimized: Removed pulse animation */
         .logo-border {
-            border: 3px solid var(--primary);
-            box-shadow: 0 4px 16px rgba(239, 119, 34, 0.3);
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 4px 16px rgba(239, 119, 34, 0.3); }
-            50% { box-shadow: 0 4px 24px rgba(239, 119, 34, 0.5); }
+            border: 2px solid var(--primary);
+            box-shadow: 0 2px 4px rgba(239, 119, 34, 0.2);
         }
 
         /* Buttons */
@@ -377,12 +290,12 @@
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             font-weight: 700;
-            box-shadow: 0 8px 24px rgba(239, 119, 34, 0.3);
+            box-shadow: 0 4px 6px -1px rgba(239, 119, 34, 0.3);
         }
 
         .btn-primary:hover {
-            box-shadow: 0 12px 32px rgba(239, 119, 34, 0.4);
-            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(239, 119, 34, 0.4);
+            transform: translateY(-1px);
         }
 
         .btn-secondary {
@@ -522,7 +435,7 @@
                                 price: {{ $menu->harga }}, 
                                 category: '{{ $menu->kategori_menu }}', 
                                 description: '{{ $menu->description }}', 
-                                image: '{{ Str::startsWith($menu->gambar, 'http') ? $menu->gambar : ($menu->gambar ? asset('storage/menu-images/' . $menu->gambar) : asset('images/default.jpg')) }}' 
+                                image: '{{ $menu->image_url }}' 
                             }
                         }"
                         x-show="!loading && (currentCategory === 'all' || currentCategory === '{{ $menu->kategori_menu }}')">
@@ -533,7 +446,7 @@
                         </div>
 
                         <div class="aspect-square bg-[#EBEBEB] relative overflow-hidden flex-shrink-0">
-                            <img src="{{ Str::startsWith($menu->gambar, 'http') ? $menu->gambar : asset('storage/menu-images/' . $menu->gambar) }}" alt="{{ $menu->nama_menu }}" class="w-full h-full object-cover transition duration-300 transform group-hover:scale-110" loading="lazy" onerror="this.src='{{ asset('images/default.jpg') }}'" >
+                            <img src="{{ $menu->image_url }}" alt="{{ $menu->nama_menu }}" class="w-full h-full object-cover transition duration-300 transform group-hover:scale-110" loading="lazy" onerror="this.src='{{ asset('images/default.jpg') }}'" >
                             <div class="absolute top-3 left-3 bg-white px-2.5 py-1 rounded-lg shadow-sm">
                                 <span class="text-xs font-medium text-gray-700 flex items-center gap-1">
                                     <svg class="w-3.5 h-3.5 fill-current text-[#FAA533]" viewBox="0 0 20 20">
@@ -645,7 +558,7 @@
                             </div>
                             <div>
                                 <p class="text-xs text-gray-500 font-medium">Email</p>
-                                <p class="text-sm font-semibold text-gray-900">info@kedaidjanggo.com</p>
+                                <p class="text-sm font-semibold text-gray-900">kedaidjanggo@gmail.com</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm">
@@ -656,7 +569,7 @@
                             </div>
                             <div>
                                 <p class="text-xs text-gray-500 font-medium">Telepon</p>
-                                <p class="text-sm font-semibold text-gray-900">+62 812-3456-7890</p>
+                                <p class="text-sm font-semibold text-gray-900">+62 877-3048-2920</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm">
@@ -667,7 +580,7 @@
                             </div>
                             <div>
                                 <p class="text-xs text-gray-500 font-medium">Alamat</p>
-                                <p class="text-sm font-semibold text-gray-900">Jl. Contoh No. 123, Jakarta</p>
+                                <p class="text-sm font-semibold text-gray-900">Jl. Puri Menteng V Blok B5 No. 5 Rt.12 / Rw 12</p>
                             </div>
                         </div>
                     </div>
@@ -686,11 +599,11 @@
                     <div class="space-y-2">
                         <div class="flex justify-between items-center py-2 border-b border-[#EBEBEB]">
                             <span class="text-sm text-gray-600">Senin - Jumat</span>
-                            <span class="text-sm font-bold text-gray-900">08:00 - 22:00</span>
+                            <span class="text-sm font-bold text-gray-900">15.00 - 22:00</span>
                         </div>
                         <div class="flex justify-between items-center py-2 border-b border-[#EBEBEB]">
                             <span class="text-sm text-gray-600">Sabtu - Minggu</span>
-                            <span class="text-sm font-bold text-gray-900">09:00 - 23:00</span>
+                            <span class="text-sm font-bold text-gray-900">15.30 - 23:00</span>
                         </div>
                         <div class="flex justify-between items-center py-2">
                             <span class="text-sm text-gray-600">Hari Libur</span>
@@ -905,7 +818,13 @@
                             quantity: 1
                         })
                     })
-                    .then(r => r.json())
+                    .then(async res => {
+                        if (!res.ok) {
+                            const text = await res.text();
+                            throw new Error(res.status + ' ' + res.statusText);
+                        }
+                        return res.json();
+                    })
                     .then(data => {
                         this.cart = data.cart || [];
                         this.cartCount = data.cart_count || 0;
@@ -913,7 +832,10 @@
                         window.dispatchEvent(new CustomEvent('cart-updated'));
                         this.showToast('Berhasil ditambahkan ke keranjang!');
                     })
-                    .catch(() => this.showToast('Gagal!', 'error'));
+                    .catch(err => {
+                        console.error(err);
+                        this.showToast('Gagal: ' + (err.message || 'Terjadi kesalahan'), 'error');
+                    });
                 },
 
                 // UPDATE JUMLAH

@@ -53,9 +53,7 @@
                 <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition group">
                     <div class="aspect-square bg-gray-100 relative overflow-hidden">
                         <img 
-                            src="{{ Str::startsWith($menu->gambar, 'http')
-                                ? $menu->gambar
-                                : asset('storage/menu-images/' . $menu->gambar) }}"
+                            src="{{ $menu->image_url }}"
                             alt="{{ $menu->nama_menu }}"
                             class="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                             onerror="this.src='{{ asset('images/default.jpg') }}'"

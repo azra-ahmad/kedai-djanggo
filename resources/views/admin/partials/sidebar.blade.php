@@ -32,6 +32,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                     </svg>
                     <span class="text-sm font-medium">Orders</span>
+                    
+                    <!-- NOTIFICATION BADGE -->
+                    <span id="order-count-badge" class="hidden ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm animate-pulse">
+                        0
+                    </span>
                 </a>
             </li>
             <li>
@@ -89,3 +94,74 @@
         </div>
     </div>
 </div>
+
+<!-- REAL-TIME NOTIFICATION SCRIPT (DEBUG MODE) -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let lastCount = 0;
+        // Gunakan URL audio yang lebih pendek dan reliable
+        const audio = new Audio('https://cdn.freesound.org/previews/352/352651_4019029-lq.mp3'); 
+        
+        console.log('🔔 Notification System: Active');
+
+        function checkNewOrders() {
+            // URL ini harus sesuai dengan route di web.php
+            fetch('/admin/check-new-orders')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('📡 Cek Order: Ada ' + data.count + ' order PAID.'); // LOG KE CONSOLE
+                    
+                    const badge = document.getElementById('order-count-badge');
+                    
+                    if (data.count > 0) {
+                        badge.innerText = data.count + ' New';
+                        badge.classList.remove('hidden');
+                        
+                        // Logic bunyi: Hanya jika jumlah bertambah dari sebelumnya
+                        // Dan abaikan bunyi saat pertama kali load (agar tidak kaget saat refresh)
+                        if (data.count > lastCount && lastCount !== 0) {
+                            console.log('🔊 Mencoba membunyikan notifikasi...');
+                            
+                            audio.play()
+                                .then(() => console.log('✅ Audio berhasil berbunyi'))
+                                .catch(e => console.warn('⚠️ Audio diblokir browser (klik halaman sekali agar bisa bunyi):', e));
+                                
+                            showToastNotification(data.count);
+                        }
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                    
+                    // Update lastCount untuk pengecekan berikutnya
+                    lastCount = data.count;
+                })
+                .catch(error => console.error('❌ Error Polling:', error));
+        }
+
+        // Cek setiap 5 detik (lebih cepat biar tes enak)
+        setInterval(checkNewOrders, 5000);
+        checkNewOrders(); // Cek langsung pas load
+
+        function showToastNotification(count) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4 z-50 animate-bounce cursor-pointer';
+            toast.onclick = () => window.location.href = '{{ route("admin.orders") }}';
+            toast.innerHTML = `
+                <div class="bg-green-500 rounded-full p-2">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-bold">Pesanan Baru!</h4>
+                    <p class="text-sm text-gray-300">${count} pesanan menunggu.</p>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 8000);
+        }
+    });
+</script>

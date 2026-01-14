@@ -197,12 +197,12 @@ class AdminController extends Controller
             $manager = new ImageManager(new Driver());
             $image = $manager->read($file->getRealPath());
             
-            // Center crop to 800x800
-            $image->cover(800, 800);
+            // Center crop to 500x500 (Optimized for performance)
+            $image->cover(500, 500);
             
-            // Save to storage as JPEG
+            // Save to storage as WebP (Optimized for Web)
             $path = 'menu-images/' . $filename;
-            Storage::disk('public')->put($path, $image->toJpeg()->toString());
+            Storage::disk('public')->put($path, $image->toWebp(80)->toString());
             
             return true;
         } catch (\Exception $e) {
@@ -241,7 +241,8 @@ class AdminController extends Controller
         // Upload and normalize image
         if ($request->hasFile('gambar')) {
             $file = $request->file('gambar');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            // Force rename to .webp extension
+            $filename = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
             $this->normalizeMenuImage($file, $filename);
             $validated['gambar'] = $filename;
         }
@@ -287,7 +288,8 @@ class AdminController extends Controller
             }
             
             $file = $request->file('gambar');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            // Force rename to .webp extension
+            $filename = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
             $this->normalizeMenuImage($file, $filename);
             $validated['gambar'] = $filename;
         }
@@ -408,5 +410,16 @@ class AdminController extends Controller
         $user->save();
 
         return back()->with('success', 'Profile updated successfully!');
+    }
+
+    // REAL-TIME NOTIFICATION CHECKER
+    public function checkNewOrders(Request $request)
+    {
+        // Hitung pesanan yang statusnya 'paid' (Sudah dibayar, menunggu diproses)
+        $newOrdersCount = Order::where('status', 'paid')->count();
+        
+        return response()->json([
+            'count' => $newOrdersCount
+        ]);
     }
 }

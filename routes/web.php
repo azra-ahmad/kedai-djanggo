@@ -50,6 +50,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
     Route::put('/profile', [AdminController::class, 'updateProfile'])->name('profile.update');
     
+    // AJAX Polling Route
+    Route::get('/check-new-orders', [AdminController::class, 'checkNewOrders'])->name('check.orders');
+    
 });
 
 // Auth Routes (jangan lupa include)

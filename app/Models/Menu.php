@@ -36,6 +36,20 @@ class Menu extends Model
         return ucfirst($this->kategori_menu);
     }
 
+    // Accessor untuk URL gambar otomatis (Handle External URL, Local Storage, & Default)
+    public function getImageUrlAttribute()
+    {
+        if ($this->gambar && (str_starts_with($this->gambar, 'http') || str_starts_with($this->gambar, 'https'))) {
+            return $this->gambar;
+        }
+
+        if ($this->gambar) {
+            return asset('storage/menu-images/' . $this->gambar);
+        }
+
+        return asset('images/default-menu.jpg');
+    }
+
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
