@@ -221,18 +221,33 @@ class OrderController extends Controller
              ], 409); // Conflict
         }
 
-        $total = array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $cart));
-
         try {
+            // 1. Prepare Item Details First & Calculate Total from it
+            $item_details = [];
+            $total_calculated = 0;
+
+            foreach ($cart as $item) {
+                $price = (int) $item['price'];
+                $quantity = (int) $item['quantity'];
+                
+                $item_details[] = [
+                    'id' => substr((string) $item['id'], 0, 50),
+                    'price' => $price,
+                    'quantity' => $quantity,
+                    'name' => substr($item['name'] ?? 'Item', 0, 50),
+                ];
+                
+                $total_calculated += ($price * $quantity);
+            }
+
             // SINGLE SOURCE OF TRUTH: Generate midtrans_order_id ONCE here
-            // Format: KDJ-{timestamp} as required
-            $midtransOrderId = 'KDJ-' . time();
+            $midtransOrderId = 'KDJ-' . time() . '-' . rand(100, 999);
 
             $order = Order::create([
                 'customer_id' => $customer->id,
                 'customer_token' => session('customer_token'),
                 'status' => 'pending',
-                'total_harga' => $total,
+                'total_harga' => $total_calculated,
                 'midtrans_order_id' => $midtransOrderId,
             ]);
 
@@ -250,16 +265,23 @@ class OrderController extends Controller
             Config::$isSanitized = true;
             Config::$is3ds = true;
 
+            if (empty(Config::$serverKey)) {
+                throw new \Exception('Midtrans Server Key is missing in configuration.');
+            }
+
             $params = [
                 'transaction_details' => [
                     'order_id' => $order->midtrans_order_id,
-                    'gross_amount' => $total,
+                    'gross_amount' => $total_calculated,
                 ],
                 'customer_details' => [
-                    'first_name' => $customer->name,
-                    'phone' => $customer->phone,
+                    'first_name' => substr($customer->name, 0, 50),
+                    'phone' => substr($customer->phone, 0, 20),
                 ],
+                'item_details' => $item_details,
             ];
+
+            \Log::info('Midtrans Payload:', $params);
 
             $snapToken = Snap::getSnapToken($params);
             $order->update(['snap_token' => $snapToken]);
@@ -273,7 +295,7 @@ class OrderController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('Checkout Error: ' . $e->getMessage());
-             return response()->json(['message' => 'Checkout failed'], 500);
+             return response()->json(['message' => 'Checkout failed: ' . $e->getMessage()], 500);
         }
     }
 

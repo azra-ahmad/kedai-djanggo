@@ -412,14 +412,20 @@ class AdminController extends Controller
         return back()->with('success', 'Profile updated successfully!');
     }
 
-    // REAL-TIME NOTIFICATION CHECKER
-    public function checkNewOrders(Request $request)
+    public function checkNewOrders()
     {
-        // Hitung pesanan yang statusnya 'paid' (Sudah dibayar, menunggu diproses)
-        $newOrdersCount = Order::where('status', 'paid')->count();
-        
+        // Check for latest PAID order specifically, as those are the ones needing attention
+        $latestOrder = Order::where('status', 'paid')
+            ->orderBy('id', 'desc')
+            ->first();
+            
+        $count = Order::where('status', 'paid')
+            ->whereDate('created_at', now())
+            ->count();
+
         return response()->json([
-            'count' => $newOrdersCount
+            'latest_id' => $latestOrder ? $latestOrder->id : 0,
+            'count' => $count
         ]);
     }
 }

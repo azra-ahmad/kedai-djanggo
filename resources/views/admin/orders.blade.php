@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders Management - Kedai Djanggo</title>
+    <title>Manage Orders - Kedai Djanggo Admin</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -148,10 +148,46 @@
     </style>
 </head>
 
-<body>
+<body class="bg-gray-50" x-data="orderPoller">
     @include('admin.partials.sidebar')
 
     <div class="ml-64 p-8">
+        <!-- ... existing content ... -->
+
+    <!-- Polling Script -->
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('orderPoller', () => ({
+                lastId: {{ \App\Models\Order::where('status', 'paid')->orderBy('id', 'desc')->value('id') ?? 0 }},
+                init() {
+                    setInterval(() => {
+                        fetch('{{ route('admin.check.orders') }}')
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.latest_id > this.lastId) {
+                                    this.lastId = data.latest_id;
+                                    this.playNotification();
+                                    
+                                    const toast = document.createElement('div');
+                                    toast.className = 'fixed top-5 right-5 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl z-50 animate-bounce font-bold flex items-center gap-3';
+                                    toast.innerHTML = '🔔 Orderan Baru Masuk! Memuat ulang...';
+                                    document.body.appendChild(toast);
+                                    
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1500);
+                                }
+                            });
+                    }, 5000);
+                },
+                playNotification() {
+                    const audio = new Audio('https://cdn.freesound.org/previews/536/536108_1415754-lq.mp3');
+                    audio.play().catch(e => console.log('Audio error:', e));
+                }
+            }));
+        });
+    </script>
+</body>
         <!-- Header -->
         <div class="mb-8 animate-slide-down">
             <div class="flex justify-between items-start mb-8">

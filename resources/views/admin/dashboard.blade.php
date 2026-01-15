@@ -51,7 +51,7 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-gray-50 via-orange-50/30 to-gray-50">
+<body class="bg-gradient-to-br from-gray-50 via-orange-50/30 to-gray-50" x-data="orderPoller">
     @include('admin.partials.sidebar')
 
     <div class="ml-64 p-6">
@@ -323,6 +323,38 @@
 
     <!-- Chart.js Script -->
     <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('orderPoller', () => ({
+                lastId: {{ \App\Models\Order::where('status', 'paid')->orderBy('id', 'desc')->value('id') ?? 0 }},
+                init() {
+                    setInterval(() => {
+                        fetch('{{ route('admin.check.orders') }}')
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.latest_id > this.lastId) {
+                                    this.lastId = data.latest_id;
+                                    this.playNotification();
+                                    
+                                    // Show toast/alert before reload
+                                    const toast = document.createElement('div');
+                                    toast.className = 'fixed top-5 right-5 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl z-50 animate-bounce font-bold flex items-center gap-3';
+                                    toast.innerHTML = '🔔 Orderan Baru Masuk! Memuat ulang...';
+                                    document.body.appendChild(toast);
+                                    
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1500);
+                                }
+                            });
+                    }, 5000); // Check every 5 seconds
+                },
+                playNotification() {
+                    const audio = new Audio('https://cdn.freesound.org/previews/536/536108_1415754-lq.mp3'); // Reliable short "Ding" sound
+                    audio.play().catch(e => console.log('Audio error:', e));
+                }
+            }));
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
             const revenueCtx = document.getElementById('revenueChart').getContext('2d');
             const revenueData = @json($revenueChart);

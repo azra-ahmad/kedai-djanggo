@@ -659,7 +659,7 @@
         </div>
 
         <!-- DETAIL MODAL -->
-        <div x-show="detailModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-md z-50" @click.self="detailModal = false" x-cloak>
+        <div x-show="detailModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-md z-[70]" @click.self="detailModal = false" x-cloak>
             <div class="absolute inset-0 flex items-end">
                 <div class="bg-white rounded-t-[40px] w-full max-h-[90vh] overflow-y-auto slide-up custom-scrollbar border-t-4 border-[#EF7722]">
                     <div class="relative">
@@ -696,6 +696,38 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>
                             Tambah ke Keranjang
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOGOUT CONFIRMATION MODAL -->
+        <div x-show="logoutModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-[80] flex items-center justify-center p-4" x-cloak>
+            <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl transform transition-all"
+                @click.outside="logoutModal = false"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 scale-90"
+                x-transition:enter-end="opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-90">
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Konfirmasi Keluar</h3>
+                    <p class="text-gray-500 text-sm mb-6">Apakah Anda yakin ingin mengakhiri sesi ini?</p>
+                    
+                    <div class="flex gap-3">
+                        <button @click="logoutModal = false" class="flex-1 px-4 py-3 rounded-xl border-2 border-gray-100 font-bold text-gray-600 hover:bg-gray-50 transition-colors">
+                            Batal
+                        </button>
+                        <button @click="confirmLogout()" class="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold shadow-lg shadow-red-200 hover:shadow-red-300 transition-all transform hover:scale-105">
+                            Ya, Keluar
                         </button>
                     </div>
                 </div>
@@ -762,6 +794,7 @@
                 cart: [],
                 currentCategory: 'all',
                 detailModal: false,
+                logoutModal: false,
                 showCartPanel: false,
                 currentProduct: {},
                 cartCount: 0,
@@ -859,17 +892,19 @@
                 },
 
                 logout() {
-                    if (confirm('Yakin ingin keluar?')) {
-                        fetch('{{ route('customer.logout') }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json',
-                            },
-                        }).then(() => {
-                            window.location.href = "{{ route('user.form') }}";
-                        });
-                    }
+                    this.logoutModal = true;
+                },
+
+                confirmLogout() {
+                    fetch('{{ route('customer.logout') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                        },
+                    }).then(() => {
+                        window.location.href = "{{ route('user.form') }}";
+                    });
                 },
 
                 showToast(message, type = 'success') {
