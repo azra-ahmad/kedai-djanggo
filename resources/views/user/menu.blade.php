@@ -480,6 +480,9 @@
                     @endforeach
                 </div>
             </div>
+
+            <!-- Spacer for Floating Cart -->
+            <div class="h-24"></div>
         </div>
         </div>
 
