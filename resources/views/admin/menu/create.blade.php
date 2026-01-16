@@ -10,10 +10,6 @@
         body { font-family: 'Inter', sans-serif; }
         .image-preview { 
             transition: all 0.3s ease;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>');
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: 64px;
         }
     </style>
 </head>
@@ -65,14 +61,28 @@
                     <div class="relative">
                         <input type="file" id="gambar" name="gambar" accept="image/*" required
                             class="hidden" onchange="previewImage(this)">
-                        <label for="gambar" class="cursor-pointer">
-                            <div id="imagePreview" class="image-preview w-full h-64 bg-gray-100 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-orange-500 transition">
+                        <label for="gambar" class="cursor-pointer block">
+                            <div id="imagePreview"
+                                class="w-full h-64 bg-gray-100 rounded-xl border-2 border-dashed border-gray-300
+                                    flex flex-col items-center justify-center gap-3 hover:border-orange-500 transition">
+
+                                <!-- ICON -->
+                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16
+                                            m-2-2l1.586-1.586a2 2 0 012.828 0L20 14
+                                            m-6-6h.01M6 20h12a2 2 0 002-2V6
+                                            a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+
+                                <!-- TEXT -->
                                 <div class="text-center">
-                                    <svg class="w-12 h-12 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                    </svg>
-                                    <p class="text-gray-500 text-sm font-medium">Klik untuk upload gambar</p>
-                                    <p class="text-gray-400 text-xs mt-1">JPEG, JPG, PNG, WebP (Max 2MB)</p>
+                                    <p class="text-gray-600 text-sm font-medium">
+                                        Klik untuk upload gambar
+                                    </p>
+                                    <p class="text-gray-400 text-xs mt-1">
+                                        JPEG, JPG, PNG, WebP (Max 2MB)
+                                    </p>
                                 </div>
                             </div>
                         </label>
@@ -170,6 +180,7 @@
                 reader.onload = function(e) {
                     preview.style.backgroundImage = `url('${e.target.result}')`;
                     preview.style.backgroundSize = 'cover';
+                    preview.style.backgroundPosition = 'center';
                     preview.innerHTML = '';
                 }
                 

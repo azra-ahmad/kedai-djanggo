@@ -16,7 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         // TRUST PROXIES (Required for ngrok/LB)
-        // $middleware->trustProxies(at: '*');
+        $middleware->trustProxies(at: '*');
         
         // Exclude Midtrans webhook from CSRF protection
         $middleware->validateCsrfTokens(except: [
