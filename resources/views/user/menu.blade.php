@@ -350,7 +350,9 @@
                         <h1 class="text-2xl font-display font-bold gradient-text mb-0.5">Kedai Djanggo</h1>
                         <p class="text-xs text-[#EF7722] font-semibold">{{ $customer ? $customer->name : 'Guest' }}</p>
                     </div>
-                    <img src="{{ asset('images/logo-kedai-djanggo.jpg') }}" alt="Logo" class="w-12 h-12 rounded-full object-cover logo-border">
+                    <img src="{{ asset('images/logo-kedai-djanggo.jpg') }}" 
+                        alt="Logo" 
+                        class="w-12 h-12 rounded-full object-cover logo-border brightness-125 contrast-110 shadow-[0_0_10px_rgba(255,255,255,0.8)]">
                 </div>
             </div>
 

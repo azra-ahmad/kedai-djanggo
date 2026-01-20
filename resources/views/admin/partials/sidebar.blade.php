@@ -5,7 +5,7 @@
             <img 
                 src="{{ asset('images/logo-kedai-djanggo.jpg') }}" 
                 alt="Logo Kedai Djanggo" 
-                class="w-10 h-10 rounded-xl object-cover shadow-sm"
+                class="w-10 h-10 rounded-xl object-cover shadow-sm filter drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] brightness-110"
             >
             <div>
                 <h2 class="font-bold text-gray-900 text-base">Kedai Djanggo</h2>
