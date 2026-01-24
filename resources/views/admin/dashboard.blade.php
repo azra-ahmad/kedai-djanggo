@@ -9,22 +9,22 @@
 @section('content')
 <div x-data="orderPoller">
     <!-- Header -->
-    <div class="flex justify-between items-start mb-6 animate-fade-in">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 animate-fade-in">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+            <h1 class="text-xl lg:text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
                 Hey {{ auth()->user()->name }}
             </h1>
             <p class="text-sm text-gray-600">Here's what's happening with your store today</p>
         </div>
-        <div class="flex items-center gap-3">
-            <form method="GET" class="flex items-center gap-2 bg-white rounded-xl px-4 py-2.5 border border-gray-200 shadow-sm">
-                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="w-full lg:w-auto">
+            <form method="GET" class="flex flex-wrap items-center gap-2 bg-white rounded-xl px-4 py-2.5 border border-gray-200 shadow-sm">
+                <svg class="w-4 h-4 text-gray-400 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
-                <input type="date" name="start_date" value="{{ $startDate }}" class="border-0 text-xs focus:ring-0 p-0 text-gray-700 font-medium">
+                <input type="date" name="start_date" value="{{ $startDate }}" class="border-0 text-xs focus:ring-0 p-0 text-gray-700 font-medium flex-1 min-w-[100px]">
                 <span class="text-gray-300 text-xs">—</span>
-                <input type="date" name="end_date" value="{{ $endDate }}" class="border-0 text-xs focus:ring-0 p-0 text-gray-700 font-medium">
-                <button type="submit" class="gradient-orange text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:shadow-md transition-all">
+                <input type="date" name="end_date" value="{{ $endDate }}" class="border-0 text-xs focus:ring-0 p-0 text-gray-700 font-medium flex-1 min-w-[100px]">
+                <button type="submit" class="gradient-orange text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:shadow-md transition-all w-full sm:w-auto mt-2 sm:mt-0">
                     Apply
                 </button>
             </form>
@@ -32,7 +32,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-4 gap-5 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mb-6">
         <!-- Revenue Card -->
         <div class="stat-card bg-white rounded-xl p-5 border border-gray-100 animate-fade-in">
             <div class="flex items-start justify-between mb-3">
@@ -120,10 +120,10 @@
     </div>
 
     <!-- Charts & Data -->
-    <div class="grid grid-cols-12 gap-5 mb-6">
+    <div class="flex flex-col lg:flex-row gap-5 mb-6">
         <!-- Revenue Chart -->
-        <div class="col-span-8 bg-white rounded-xl p-5 border border-gray-100 animate-fade-in">
-            <div class="flex items-center justify-between mb-5">
+        <div class="w-full lg:w-2/3 bg-white rounded-xl p-4 lg:p-5 border border-gray-100 animate-fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                 <div>
                     <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
                         <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,13 +137,13 @@
                     <span class="px-3 py-1.5 text-xs font-semibold gradient-orange text-white rounded-lg shadow-sm">Date Range</span>
                 </div>
             </div>
-            <div class="relative" style="height: 280px;">
+            <div class="relative h-[200px] sm:h-[250px] lg:h-[280px]">
                 <canvas id="revenueChart"></canvas>
             </div>
         </div>
 
         <!-- Top Items -->
-        <div class="col-span-4 bg-white rounded-xl p-5 border border-gray-100 animate-fade-in">
+        <div class="w-full lg:w-1/3 bg-white rounded-xl p-4 lg:p-5 border border-gray-100 animate-fade-in">
             <div class="mb-5">
                 <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
                     <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -184,8 +184,8 @@
 
     <!-- Recent Orders -->
     <div class="bg-white rounded-xl border border-gray-100 animate-fade-in">
-        <div class="p-5 border-b border-gray-100">
-            <div class="flex items-center justify-between">
+        <div class="p-4 lg:p-5 border-b border-gray-100">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                     <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
                         <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
