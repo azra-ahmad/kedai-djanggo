@@ -174,16 +174,10 @@
                         
                         if (data.status === 'success' && data.snap_token) {
                             snap.pay(data.snap_token, {
+                                // UX Redirect ONLY - No Database Update
+                                // Payment status is updated by Midtrans Webhook ONLY
                                 onSuccess: function (result) {
-                                    fetch('/order/updatePayment/' + data.order_id, {
-                                        method: 'POST',
-                                        headers: {
-                                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                            'Content-Type': 'application/json'
-                                        }
-                                    }).then(() => {
-                                        window.location.href = '/order/status/' + data.order_id;
-                                    });
+                                    window.location.href = '/order/status/' + data.order_id;
                                 },
                                 onPending: function (result) {
                                     window.location.href = '/order/status/' + data.order_id;
