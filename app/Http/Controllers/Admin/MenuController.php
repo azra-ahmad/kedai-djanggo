@@ -163,4 +163,25 @@ class MenuController extends Controller
             return false;
         }
     }
+
+    /**
+     * Toggle menu availability (stock status)
+     */
+    public function toggleAvailability(Menu $menu)
+    {
+        $menu->update(['is_available' => !$menu->is_available]);
+        
+        $status = $menu->is_available ? 'tersedia' : 'tidak tersedia';
+        
+        // Return JSON if AJAX request
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'is_available' => $menu->is_available,
+                'message' => "Menu {$menu->nama_menu} sekarang {$status}"
+            ]);
+        }
+        
+        return back()->with('success', "Menu {$menu->nama_menu} sekarang {$status}");
+    }
 }

@@ -21,14 +21,15 @@
     <!-- Menu Grid -->
     <div class="grid grid-cols-4 gap-6">
         @forelse($menus as $menu)
-            <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition group">
-                <div class="aspect-square bg-gray-100 relative overflow-hidden">
+            <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition group {{ !$menu->is_available ? 'ring-2 ring-red-200' : '' }}">
+                <div class="aspect-square bg-gray-100 relative overflow-hidden {{ !$menu->is_available ? 'grayscale opacity-60' : '' }}">
                     <img 
                         src="{{ $menu->image_url }}"
                         alt="{{ $menu->nama_menu }}"
                         class="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                         onerror="this.src='{{ asset('images/default.jpg') }}'"
                     >
+                    <!-- Category Badge -->
                     <div class="absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-semibold
                         @if($menu->kategori_menu == 'kopi') bg-amber-100 text-amber-800
                         @elseif($menu->kategori_menu == 'minuman') bg-blue-100 text-blue-800
@@ -38,12 +39,53 @@
                         @endif shadow">
                         {{ ucfirst($menu->kategori_menu) }}
                     </div>
+                    <!-- Sold Out Badge -->
+                    @unless($menu->is_available)
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg transform -rotate-12">
+                            HABIS
+                        </span>
+                    </div>
+                    @endunless
                 </div>
                 <div class="p-4">
-                    <h3 class="font-bold text-gray-900 mb-1 truncate">{{ $menu->nama_menu }}</h3>
+                    <div class="flex items-start justify-between mb-1">
+                        <h3 class="font-bold text-gray-900 truncate flex-1 {{ !$menu->is_available ? 'text-gray-400' : '' }}">{{ $menu->nama_menu }}</h3>
+                        <!-- Availability Toggle Switch -->
+                        <label class="relative inline-flex items-center cursor-pointer ml-2 flex-shrink-0"
+                               x-data="{ available: {{ $menu->is_available ? 'true' : 'false' }}, loading: false }"
+                               @click.prevent="
+                                   loading = true;
+                                   fetch('{{ route('admin.menu.toggle', $menu->id) }}', {
+                                       method: 'PATCH',
+                                       headers: {
+                                           'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                           'Accept': 'application/json',
+                                           'Content-Type': 'application/json'
+                                       }
+                                   })
+                                   .then(r => r.json())
+                                   .then(data => {
+                                       available = data.is_available;
+                                       loading = false;
+                                       // Reload to update UI fully
+                                       window.location.reload();
+                                   })
+                                   .catch(() => loading = false);
+                               ">
+                            <input type="checkbox" class="sr-only peer" :checked="available" :disabled="loading">
+                            <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 rounded-full peer 
+                                        peer-checked:after:translate-x-full peer-checked:after:border-white 
+                                        after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                                        after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all 
+                                        peer-checked:bg-green-500"
+                                 :class="{ 'opacity-50': loading }">
+                            </div>
+                        </label>
+                    </div>
                     <p class="text-sm text-gray-500 mb-3 line-clamp-2 h-10">{{ $menu->description }}</p>
                     <div class="flex items-center justify-between">
-                        <span class="text-orange-600 font-bold text-lg">Rp {{ number_format($menu->harga, 0, ',', '.') }}</span>
+                        <span class="text-orange-600 font-bold text-lg {{ !$menu->is_available ? 'text-gray-400' : '' }}">Rp {{ number_format($menu->harga, 0, ',', '.') }}</span>
                         <div class="flex gap-2">
                             <a href="{{ route('admin.menu.edit', $menu->id) }}" 
                                class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition">

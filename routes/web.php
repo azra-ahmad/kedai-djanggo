@@ -77,6 +77,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/menu/{id}/edit', [Admin\MenuController::class, 'edit'])->name('menu.edit');
     Route::put('/menu/{id}', [Admin\MenuController::class, 'update'])->name('menu.update');
     Route::delete('/menu/{id}', [Admin\MenuController::class, 'destroy'])->name('menu.destroy');
+    Route::patch('/menu/{menu}/toggle', [Admin\MenuController::class, 'toggleAvailability'])->name('menu.toggle');
     
     // Financial Report
     Route::get('/financial', [Admin\ReportController::class, 'financial'])->name('financial');

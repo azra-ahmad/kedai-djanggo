@@ -15,10 +15,12 @@ class Menu extends Model
         'harga',
         'gambar',
         'description',
+        'is_available',
     ];
 
     protected $casts = [
         'harga' => 'decimal:2',
+        'is_available' => 'boolean',
     ];
 
     // Konstanta untuk kategori yang valid
