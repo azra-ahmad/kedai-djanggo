@@ -20,17 +20,17 @@
 
 @section('content')
 <!-- Header -->
-<div class="flex justify-between items-center mb-8 no-print">
+<div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6 no-print">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 mb-1">📊 Financial Report</h1>
-        <p class="text-gray-500 text-sm">Comprehensive revenue and sales analytics</p>
+        <h1 class="text-2xl font-bold text-gray-900 mb-1">📊 Laporan Keuangan</h1>
+        <p class="text-gray-500 text-sm">Pantau omzet, pengeluaran, dan laba bersih</p>
     </div>
-    <div class="flex gap-3">
-        <form method="GET" class="flex items-center gap-2 bg-white rounded-xl px-4 py-2 border border-gray-200">
-            <input type="date" name="start_date" value="{{ $startDate }}" class="border-0 text-sm focus:ring-0 p-0" required>
+    <div class="flex flex-wrap gap-2">
+        <form method="GET" class="flex items-center gap-2 bg-white rounded-xl px-3 py-2 border border-gray-200">
+            <input type="date" name="start_date" value="{{ $startDate }}" class="border-0 text-sm focus:ring-0 p-0 w-[120px]" required>
             <span class="text-gray-400">—</span>
-            <input type="date" name="end_date" value="{{ $endDate }}" class="border-0 text-sm focus:ring-0 p-0" required>
-            <button type="submit" class="bg-orange-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-orange-700">
+            <input type="date" name="end_date" value="{{ $endDate }}" class="border-0 text-sm focus:ring-0 p-0 w-[120px]" required>
+            <button type="submit" class="bg-orange-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-orange-700">
                 Filter
             </button>
         </form>
@@ -38,249 +38,306 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
-            Export Excel
+            <span class="hidden sm:inline">Export</span>
         </button>
-        <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center gap-2">
+        <button onclick="window.print()" class="bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
             </svg>
-            Print PDF
+            <span class="hidden sm:inline">Print</span>
         </button>
     </div>
 </div>
+
+<!-- Success Message -->
+@if(session('success'))
+<div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-xl mb-6 flex items-center gap-2">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    </svg>
+    {{ session('success') }}
+</div>
+@endif
 
 <!-- Print Header (Only visible when printing) -->
 <div class="hidden print:block mb-8 text-center border-b-2 border-gray-300 pb-4">
     <h1 class="text-3xl font-bold text-gray-900 mb-2">Kedai Djanggo</h1>
-    <h2 class="text-xl font-semibold text-gray-700 mb-2">Financial Report</h2>
-    <p class="text-gray-600">Period: {{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}</p>
-    <p class="text-sm text-gray-500">Generated: {{ \Carbon\Carbon::now()->format('d M Y H:i') }}</p>
+    <h2 class="text-xl font-semibold text-gray-700 mb-2">Laporan Keuangan</h2>
+    <p class="text-gray-600">Periode: {{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}</p>
 </div>
 
-@if($totalOrders > 0)
-<!-- Executive Summary -->
-<div class="bg-white rounded-2xl border border-gray-100 p-6 mb-8">
-    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-        </svg>
-        Executive Summary
-    </h3>
-    <div class="grid grid-cols-4 gap-6">
-        <div class="stat-card bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-            <p class="text-green-700 text-xs font-semibold mb-1 uppercase">Total Revenue</p>
-            <h3 class="text-2xl font-bold text-green-900">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h3>
-            <p class="text-green-600 text-xs mt-1">{{ \Carbon\Carbon::parse($startDate)->diffInDays(\Carbon\Carbon::parse($endDate)) + 1 }} days period</p>
+<!-- ============================================ -->
+<!-- QUICK EXPENSE INPUT FORM -->
+<!-- ============================================ -->
+<div class="bg-white rounded-xl border border-gray-200 p-4 mb-6 no-print">
+    <form method="POST" action="{{ route('admin.expense.store') }}" class="flex flex-col lg:flex-row gap-3 items-end">
+        @csrf
+        <div class="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Tanggal</label>
+                <input type="date" name="date" value="{{ date('Y-m-d') }}" required
+                       class="w-full h-10 px-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Keterangan</label>
+                <input type="text" name="description" placeholder="Contoh: Belanja Pasar" required
+                       class="w-full h-10 px-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Jumlah (Rp)</label>
+                <input type="number" name="amount" placeholder="50000" min="0" required
+                       class="w-full h-10 px-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500">
+            </div>
         </div>
-        <div class="stat-card bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-            <p class="text-blue-700 text-xs font-semibold mb-1 uppercase">Total Orders</p>
-            <h3 class="text-2xl font-bold text-blue-900">{{ number_format($totalOrders) }}</h3>
-            <p class="text-blue-600 text-xs mt-1">Completed transactions</p>
+        <button type="submit" class="h-10 px-6 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition flex items-center gap-2 whitespace-nowrap">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Catat Pengeluaran
+        </button>
+    </form>
+</div>
+
+<!-- ============================================ -->
+<!-- EXECUTIVE SUMMARY (Revenue, Expense, Profit) -->
+<!-- ============================================ -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <!-- Total Revenue -->
+    <div class="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 font-semibold uppercase">Omzet</p>
+                <p class="text-lg lg:text-xl font-bold text-green-700">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
+            </div>
         </div>
-        <div class="stat-card bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
-            <p class="text-purple-700 text-xs font-semibold mb-1 uppercase">Avg Order Value</p>
-            <h3 class="text-2xl font-bold text-purple-900">Rp {{ number_format($averageOrderValue, 0, ',', '.') }}</h3>
-            <p class="text-purple-600 text-xs mt-1">Per transaction</p>
+    </div>
+
+    <!-- Total Expenses -->
+    <div class="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 font-semibold uppercase">Pengeluaran</p>
+                <p class="text-lg lg:text-xl font-bold text-red-700">Rp {{ number_format($totalExpenses, 0, ',', '.') }}</p>
+            </div>
         </div>
-        <div class="stat-card bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
-            <p class="text-orange-700 text-xs font-semibold mb-1 uppercase">Daily Avg Revenue</p>
-            <h3 class="text-2xl font-bold text-orange-900">Rp {{ number_format($totalRevenue / max(\Carbon\Carbon::parse($startDate)->diffInDays(\Carbon\Carbon::parse($endDate)) + 1, 1), 0, ',', '.') }}</h3>
-            <p class="text-orange-600 text-xs mt-1">Per day average</p>
+    </div>
+
+    <!-- Net Profit -->
+    <div class="bg-white rounded-xl p-4 border-2 {{ $netProfit >= 0 ? 'border-emerald-300 bg-emerald-50' : 'border-red-300 bg-red-50' }} shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 {{ $netProfit >= 0 ? 'bg-emerald-200' : 'bg-red-200' }} rounded-lg flex items-center justify-center">
+                @if($netProfit >= 0)
+                <svg class="w-5 h-5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
+                @else
+                <svg class="w-5 h-5 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
+                </svg>
+                @endif
+            </div>
+            <div>
+                <p class="text-xs {{ $netProfit >= 0 ? 'text-emerald-700' : 'text-red-700' }} font-bold uppercase">Laba Bersih</p>
+                <p class="text-lg lg:text-xl font-black {{ $netProfit >= 0 ? 'text-emerald-800' : 'text-red-800' }}">
+                    Rp {{ number_format(abs($netProfit), 0, ',', '.') }}
+                    @if($netProfit < 0) <span class="text-sm">(Rugi)</span> @endif
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Orders -->
+    <div class="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 font-semibold uppercase">Transaksi</p>
+                <p class="text-lg lg:text-xl font-bold text-blue-700">{{ number_format($totalOrders) }}</p>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Revenue Analysis -->
-<div class="grid grid-cols-12 gap-6 mb-8">
-    <!-- Daily Trend Chart -->
-    <div class="col-span-8 bg-white rounded-2xl p-6 border border-gray-100">
-        <h3 class="text-base font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
-            </svg>
-            Revenue Trend Analysis
-        </h3>
-        <canvas id="revenueTrendChart" height="80"></canvas>
+@if($totalOrders > 0 || $totalExpenses > 0)
+<!-- Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+    <!-- Revenue Trend Chart -->
+    <div class="lg:col-span-8 bg-white rounded-xl p-5 border border-gray-100">
+        <h3 class="text-sm font-bold text-gray-900 mb-4">📈 Trend Pendapatan Harian</h3>
+        <canvas id="revenueTrendChart" height="100"></canvas>
     </div>
 
     <!-- Category Distribution -->
-    <div class="col-span-4 bg-white rounded-2xl p-6 border border-gray-100">
-        <h3 class="text-base font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
-            </svg>
-            Category Mix
-        </h3>
+    <div class="lg:col-span-4 bg-white rounded-xl p-5 border border-gray-100">
+        <h3 class="text-sm font-bold text-gray-900 mb-4">🍽️ Kategori Menu</h3>
         @if($categoryRevenue->count() > 0)
         <div class="flex items-center justify-center mb-4">
-            <div style="width: 200px; height: 200px;">
+            <div style="width: 160px; height: 160px;">
                 <canvas id="categoryChart"></canvas>
             </div>
         </div>
-        <div class="space-y-2 mt-4">
+        <div class="space-y-2">
             @foreach($categoryRevenue as $category)
-                @php
-                    $percentage = ($category->revenue / $totalRevenue) * 100;
-                @endphp
-                <div class="flex items-center justify-between py-2 border-b border-gray-50">
-                    <div class="flex items-center gap-2 flex-1">
-                        <div class="w-3 h-3 rounded-full" style="background-color: {{ ['#ea580c', '#3b82f6', '#ef4444', '#fbbf24', '#a855f7'][$loop->index % 5] }};"></div>
-                        <span class="text-xs font-medium text-gray-700 capitalize">{{ $category->kategori_menu }}</span>
+                @php $percentage = $totalRevenue > 0 ? ($category->revenue / $totalRevenue) * 100 : 0; @endphp
+                <div class="flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full" style="background-color: {{ ['#ea580c', '#3b82f6', '#ef4444', '#fbbf24', '#a855f7'][$loop->index % 5] }};"></div>
+                        <span class="text-gray-700 capitalize">{{ $category->kategori_menu }}</span>
                     </div>
-                    <span class="text-xs font-bold text-gray-900">{{ number_format($percentage, 1) }}%</span>
+                    <span class="font-bold text-gray-900">{{ number_format($percentage, 0) }}%</span>
                 </div>
             @endforeach
         </div>
+        @else
+        <p class="text-gray-500 text-sm text-center py-8">Belum ada data</p>
         @endif
     </div>
 </div>
 
-<!-- Product Performance -->
-<div class="bg-white rounded-2xl border border-gray-100 mb-8">
-    <div class="p-6 border-b border-gray-100">
-        <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
-            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            Product Performance Analysis
-        </h3>
+<!-- Two Column: Recent Expenses & Top Products -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Recent Expenses -->
+    <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-gray-900">💸 Pengeluaran Terbaru</h3>
+        </div>
+        <div class="max-h-[300px] overflow-y-auto">
+            @forelse($recentExpenses as $expense)
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-50 hover:bg-gray-50">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">{{ $expense->description }}</p>
+                    <p class="text-xs text-gray-500">{{ $expense->date->format('d M Y') }}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-sm font-bold text-red-600">-Rp {{ number_format($expense->amount, 0, ',', '.') }}</span>
+                    <form method="POST" action="{{ route('admin.expense.destroy', $expense->id) }}" onsubmit="return confirm('Hapus pengeluaran ini?');" class="no-print">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-gray-400 hover:text-red-600 transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            @empty
+            <div class="px-4 py-8 text-center text-gray-500 text-sm">
+                Belum ada pengeluaran tercatat
+            </div>
+            @endforelse
+        </div>
     </div>
-    <div class="overflow-x-auto">
-        <table class="w-full" id="productTable">
-            <thead class="bg-gray-50 border-b border-gray-100">
-                <tr>
-                    <th class="text-left py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Rank</th>
-                    <th class="text-left py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Product</th>
-                    <th class="text-left py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Category</th>
-                    <th class="text-right py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Units Sold</th>
-                    <th class="text-right py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Revenue</th>
-                    <th class="text-right py-3 px-6 text-xs font-semibold text-gray-500 uppercase">% of Total</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                @foreach($topProducts as $index => $product)
-                    @php
-                        $percentage = ($product->total_revenue / $totalRevenue) * 100;
-                    @endphp
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="py-4 px-6">
-                            <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white font-bold text-xs">
-                                {{ $index + 1 }}
-                            </div>
-                        </td>
-                        <td class="py-4 px-6">
-                            <span class="text-sm font-semibold text-gray-900">{{ $product->nama_menu }}</span>
-                        </td>
-                        <td class="py-4 px-6">
-                            <span class="px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 capitalize">
-                                {{ $product->kategori_menu }}
-                            </span>
-                        </td>
-                        <td class="py-4 px-6 text-right">
-                            <span class="text-sm font-semibold text-gray-900">{{ number_format($product->total_sold) }}</span>
-                        </td>
-                        <td class="py-4 px-6 text-right">
-                            <span class="text-sm font-bold text-green-600">Rp {{ number_format($product->total_revenue, 0, ',', '.') }}</span>
-                        </td>
-                        <td class="py-4 px-6 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <div class="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full bg-orange-500 rounded-full" style="width: {{ $percentage }}%"></div>
-                                </div>
-                                <span class="text-sm font-semibold text-gray-700">{{ number_format($percentage, 1) }}%</span>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+
+    <!-- Top Products -->
+    <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <div class="p-4 border-b border-gray-100">
+            <h3 class="text-sm font-bold text-gray-900">🏆 Produk Terlaris</h3>
+        </div>
+        <div class="max-h-[300px] overflow-y-auto">
+            @forelse($topProducts->take(5) as $index => $product)
+            <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-50">
+                <div class="w-7 h-7 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white font-bold text-xs">
+                    {{ $index + 1 }}
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">{{ $product->nama_menu }}</p>
+                    <p class="text-xs text-gray-500">{{ $product->total_sold }} terjual</p>
+                </div>
+                <span class="text-sm font-bold text-green-600">Rp {{ number_format($product->total_revenue, 0, ',', '.') }}</span>
+            </div>
+            @empty
+            <div class="px-4 py-8 text-center text-gray-500 text-sm">
+                Belum ada transaksi
+            </div>
+            @endforelse
+        </div>
     </div>
 </div>
 
-<!-- Daily Breakdown -->
-<div class="bg-white rounded-2xl border border-gray-100">
-    <div class="p-6 border-b border-gray-100">
-        <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
-            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-            Daily Revenue Breakdown
-        </h3>
+<!-- Daily Revenue Table -->
+<div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+    <div class="p-4 border-b border-gray-100">
+        <h3 class="text-sm font-bold text-gray-900">📅 Rincian Harian</h3>
     </div>
     <div class="overflow-x-auto">
-        <table class="w-full" id="dailyTable">
+        <table class="w-full text-sm" id="dailyTable">
             <thead class="bg-gray-50 border-b border-gray-100">
                 <tr>
-                    <th class="text-left py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Date</th>
-                    <th class="text-left py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Day</th>
-                    <th class="text-right py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Orders</th>
-                    <th class="text-right py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Revenue</th>
-                    <th class="text-right py-3 px-6 text-xs font-semibold text-gray-500 uppercase">Avg/Order</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-600">Tanggal</th>
+                    <th class="text-right py-3 px-4 font-semibold text-gray-600">Order</th>
+                    <th class="text-right py-3 px-4 font-semibold text-gray-600">Omzet</th>
+                    <th class="text-right py-3 px-4 font-semibold text-gray-600">Pengeluaran</th>
+                    <th class="text-right py-3 px-4 font-semibold text-gray-600">Nett</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 @foreach($dailyRevenue as $day)
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="py-4 px-6">
-                            <span class="text-sm font-semibold text-gray-900">
-                                {{ \Carbon\Carbon::parse($day->date)->format('d M Y') }}
-                            </span>
+                    @php
+                        $dayExpense = $dailyExpenses[$day->date] ?? null;
+                        $dayExpenseAmount = $dayExpense ? $dayExpense->total : 0;
+                        $dayNet = $day->revenue - $dayExpenseAmount;
+                    @endphp
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-3 px-4">
+                            <span class="font-medium text-gray-900">{{ \Carbon\Carbon::parse($day->date)->format('d M Y') }}</span>
+                            <span class="text-gray-500 text-xs ml-1">({{ \Carbon\Carbon::parse($day->date)->locale('id')->isoFormat('ddd') }})</span>
                         </td>
-                        <td class="py-4 px-6">
-                            <span class="text-sm text-gray-600">
-                                {{ \Carbon\Carbon::parse($day->date)->locale('id')->isoFormat('dddd') }}
-                            </span>
+                        <td class="py-3 px-4 text-right font-medium">{{ $day->orders }}</td>
+                        <td class="py-3 px-4 text-right font-bold text-green-600">Rp {{ number_format($day->revenue, 0, ',', '.') }}</td>
+                        <td class="py-3 px-4 text-right font-medium text-red-600">
+                            @if($dayExpenseAmount > 0)
+                                -Rp {{ number_format($dayExpenseAmount, 0, ',', '.') }}
+                            @else
+                                <span class="text-gray-400">-</span>
+                            @endif
                         </td>
-                        <td class="py-4 px-6 text-right">
-                            <span class="text-sm font-semibold text-gray-900">{{ $day->orders }}</span>
-                        </td>
-                        <td class="py-4 px-6 text-right">
-                            <span class="text-sm font-bold text-green-600">
-                                Rp {{ number_format($day->revenue, 0, ',', '.') }}
-                            </span>
-                        </td>
-                        <td class="py-4 px-6 text-right">
-                            <span class="text-sm text-gray-600">
-                                Rp {{ number_format($day->revenue / $day->orders, 0, ',', '.') }}
-                            </span>
+                        <td class="py-3 px-4 text-right font-bold {{ $dayNet >= 0 ? 'text-emerald-700' : 'text-red-700' }}">
+                            Rp {{ number_format($dayNet, 0, ',', '.') }}
                         </td>
                     </tr>
                 @endforeach
             </tbody>
             <tfoot class="bg-gray-900 text-white font-bold">
                 <tr>
-                    <td colspan="2" class="py-4 px-6 text-sm">GRAND TOTAL</td>
-                    <td class="py-4 px-6 text-right text-sm">{{ number_format($totalOrders) }}</td>
-                    <td class="py-4 px-6 text-right text-sm">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</td>
-                    <td class="py-4 px-6 text-right text-sm">Rp {{ number_format($averageOrderValue, 0, ',', '.') }}</td>
+                    <td class="py-3 px-4">TOTAL</td>
+                    <td class="py-3 px-4 text-right">{{ number_format($totalOrders) }}</td>
+                    <td class="py-3 px-4 text-right">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</td>
+                    <td class="py-3 px-4 text-right">Rp {{ number_format($totalExpenses, 0, ',', '.') }}</td>
+                    <td class="py-3 px-4 text-right {{ $netProfit >= 0 ? 'text-emerald-400' : 'text-red-400' }}">Rp {{ number_format($netProfit, 0, ',', '.') }}</td>
                 </tr>
             </tfoot>
         </table>
     </div>
 </div>
+
 @else
 <!-- Empty State -->
-<div class="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<div class="bg-white rounded-xl border border-gray-100 p-12 text-center">
+    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
         </svg>
     </div>
-    <h3 class="text-lg font-bold text-gray-900 mb-2">No Financial Data Available</h3>
-    <p class="text-gray-500 text-sm mb-6">Belum ada transaksi yang selesai pada periode ini.</p>
-    <div class="flex gap-3 justify-center">
-        <a href="{{ route('admin.orders') }}" class="bg-orange-600 text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-orange-700 transition">
-            View All Orders
-        </a>
-        <form method="GET" class="inline">
-            <input type="hidden" name="start_date" value="{{ \Carbon\Carbon::now()->subMonths(3)->format('Y-m-d') }}">
-            <input type="hidden" name="end_date" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
-            <button class="bg-gray-100 text-gray-700 px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-200 transition">
-                Show Last 3 Months
-            </button>
-        </form>
-    </div>
+    <h3 class="text-lg font-bold text-gray-900 mb-2">Belum Ada Data</h3>
+    <p class="text-gray-500 text-sm mb-6">Tidak ada transaksi pada periode ini.</p>
+    <a href="{{ route('admin.orders') }}" class="bg-orange-600 text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-orange-700 transition">
+        Lihat Pesanan
+    </a>
 </div>
 @endif
 @endsection
@@ -298,14 +355,14 @@ new Chart(trendCtx, {
         labels: dailyData.map(d => {
             const date = new Date(d.date);
             return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-        }),
+        }).reverse(),
         datasets: [{
-            label: 'Revenue',
-            data: dailyData.map(d => d.revenue),
-            backgroundColor: 'rgba(234, 88, 12, 0.8)',
-            borderColor: '#ea580c',
+            label: 'Omzet',
+            data: dailyData.map(d => d.revenue).reverse(),
+            backgroundColor: 'rgba(34, 197, 94, 0.8)',
+            borderColor: '#22c55e',
             borderWidth: 0,
-            borderRadius: 6
+            borderRadius: 4
         }]
     },
     options: {
@@ -315,7 +372,7 @@ new Chart(trendCtx, {
             legend: { display: false },
             tooltip: {
                 backgroundColor: '#1f2937',
-                padding: 12,
+                padding: 10,
                 callbacks: {
                     label: (context) => 'Rp ' + context.parsed.y.toLocaleString('id-ID')
                 }
@@ -346,73 +403,48 @@ new Chart(categoryCtx, {
         datasets: [{
             data: categoryData.map(c => c.revenue),
             backgroundColor: ['#ea580c', '#3b82f6', '#ef4444', '#fbbf24', '#a855f7'],
-            borderWidth: 3,
-            borderColor: '#fff',
-            hoverOffset: 8
+            borderWidth: 2,
+            borderColor: '#fff'
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: true,
-        cutout: '70%',
+        cutout: '65%',
         plugins: {
-            legend: { display: false },
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        let total = context.dataset.data.reduce((a, b) => a + b, 0);
-                        let percentage = ((context.parsed / total) * 100).toFixed(1);
-                        return context.label + ': ' + percentage + '%';
-                    }
-                }
-            }
+            legend: { display: false }
         }
     }
 });
+@endif
 @endif
 
 // Export to Excel Function
 function exportToExcel() {
     const wb = XLSX.utils.book_new();
     
-    wb.Props = {
-        Title: "Kedai Djanggo Financial Report",
-        Author: "Admin Kedai Djanggo",
-        CreatedDate: new Date()
-    };
-
-    // Summary Sheet
+    // Summary
     const summaryData = [
-        ["Kedai Djanggo - Financial Report", null, null, null],
-        ["Period", "{{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}", null, null],
-        ["Generated", "{{ \Carbon\Carbon::now()->format('d M Y H:i') }}", null, null],
+        ["Kedai Djanggo - Laporan Keuangan"],
+        ["Periode", "{{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}"],
         [],
-        ["EXECUTIVE SUMMARY"],
-        ["Total Revenue", "Rp {{ number_format($totalRevenue, 0, ',', '.') }}"],
-        ["Total Orders", "{{ $totalOrders }}"],
-        ["Average Order Value", "Rp {{ number_format($averageOrderValue, 0, ',', '.') }}"],
-        ["Daily Average Revenue", "Rp {{ number_format($totalRevenue / max(\Carbon\Carbon::parse($startDate)->diffInDays(\Carbon\Carbon::parse($endDate)) + 1, 1), 0, ',', '.') }}"]
+        ["RINGKASAN"],
+        ["Total Omzet", "Rp {{ number_format($totalRevenue, 0, ',', '.') }}"],
+        ["Total Pengeluaran", "Rp {{ number_format($totalExpenses, 0, ',', '.') }}"],
+        ["Laba Bersih", "Rp {{ number_format($netProfit, 0, ',', '.') }}"],
+        ["Total Transaksi", "{{ $totalOrders }}"]
     ];
     const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
-    wsSummary["!cols"] = [{ wch: 25 }, { wch: 20 }, { wch: 15 }, { wch: 15 }];
-    XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Ringkasan');
 
-    // Daily Revenue Sheet
+    // Daily Table
     const dailyTable = document.getElementById('dailyTable');
-    const wsDaily = XLSX.utils.table_to_sheet(dailyTable);
-    wsDaily["!cols"] = [{ wch: 15 }, { wch: 15 }, { wch: 10 }, { wch: 15 }, { wch: 15 }];
-    XLSX.utils.book_append_sheet(wb, wsDaily, 'Daily Revenue');
-
-    // Product Performance Sheet
-    const productTable = document.getElementById('productTable');
-    const wsProduct = XLSX.utils.table_to_sheet(productTable);
-    wsProduct["!cols"] = [{ wch: 10 }, { wch: 20 }, { wch: 15 }, { wch: 10 }, { wch: 15 }, { wch: 10 }];
-    XLSX.utils.book_append_sheet(wb, wsProduct, 'Product Performance');
+    if (dailyTable) {
+        const wsDaily = XLSX.utils.table_to_sheet(dailyTable);
+        XLSX.utils.book_append_sheet(wb, wsDaily, 'Harian');
+    }
     
-    // Download file
-    const fileName = 'Financial_Report_{{ \Carbon\Carbon::parse($startDate)->format("Y-m-d") }}_to_{{ \Carbon\Carbon::parse($endDate)->format("Y-m-d") }}.xlsx';
-    XLSX.writeFile(wb, fileName, { bookType: 'xlsx', compression: true });
+    XLSX.writeFile(wb, 'Laporan_Keuangan_{{ \Carbon\Carbon::parse($startDate)->format("Ymd") }}_{{ \Carbon\Carbon::parse($endDate)->format("Ymd") }}.xlsx');
 }
-@endif
 </script>
 @endpush
