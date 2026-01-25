@@ -15,15 +15,34 @@ class OrderController extends Controller
     {
         $status = $request->input('status', 'all');
         $search = $request->input('search');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Calculate accurate statistics (independent of filters)
+        $totalOrders = Order::count();
+        $pendingOrders = Order::where('status', 'pending')->count();
+        $paidOrders = Order::where('status', 'paid')->count();
+        $completedOrders = Order::where('status', 'done')->count();
+        $failedOrders = Order::where('status', 'failed')->count();
 
         $query = Order::with(['customer', 'orderItems.menu']);
 
-        // Filter berdasarkan status
+        // Filter by status
         if ($status !== 'all') {
             $query->where('status', $status);
         }
 
-        // Filter berdasarkan pencarian
+        // Filter by date range
+        if ($startDate && $endDate) {
+            $query->whereDate('created_at', '>=', $startDate)
+                  ->whereDate('created_at', '<=', $endDate);
+        } elseif ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        } elseif ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        // Filter by search
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('midtrans_order_id', 'like', "%{$search}%")
@@ -36,7 +55,15 @@ class OrderController extends Controller
 
         $orders = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
 
-        return view('admin.orders', compact('orders', 'status'));
+        return view('admin.orders', compact(
+            'orders', 
+            'status',
+            'totalOrders',
+            'pendingOrders',
+            'paidOrders',
+            'completedOrders',
+            'failedOrders'
+        ));
     }
 
     /**

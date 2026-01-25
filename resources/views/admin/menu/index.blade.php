@@ -18,74 +18,72 @@
         </a>
     </div>
 
-    <!-- Sticky Toolbar -->
-    <div class="sticky top-0 z-20 bg-white/95 backdrop-blur-sm rounded-xl border border-gray-200 p-4 mb-6 shadow-sm">
-        <form method="GET" action="{{ route('admin.menu.index') }}" class="flex flex-col lg:flex-row gap-3">
-            <!-- Search Input -->
-            <div class="relative flex-1">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Sticky Toolbar (Responsive: Mobile 2-row, Desktop single-row) -->
+    <div class="sticky top-0 z-20 bg-white/95 backdrop-blur-sm rounded-xl border border-gray-200 p-3 lg:p-4 mb-6 shadow-sm">
+        <form method="GET" action="{{ route('admin.menu.index') }}" class="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-3">
+            
+            <!-- Search Input (Grows on desktop) -->
+            <div class="relative flex-1 order-1">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
                 <input type="text" name="search" value="{{ request('search') }}" 
                        placeholder="Cari menu..." 
-                       class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                       class="w-full h-10 pl-9 pr-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
             </div>
 
-            <!-- Category Filter -->
-            <select name="category" onchange="this.form.submit()" 
-                    class="px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]">
-                <option value="">Semua Kategori</option>
-                @foreach($categories as $cat)
-                    <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>
-                        {{ ucfirst($cat) }}
-                    </option>
-                @endforeach
-            </select>
+            <!-- Filters Group (Category + Sort) -->
+            <div class="flex gap-2 order-3 lg:order-2 lg:flex-none">
+                <!-- Category Filter -->
+                <select name="category" onchange="this.form.submit()" 
+                        class="h-10 px-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white flex-1 lg:flex-none lg:w-[150px]">
+                    <option value="">Semua Kategori</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>
+                            {{ ucfirst($cat) }}
+                        </option>
+                    @endforeach
+                </select>
 
-            <!-- Sort Dropdown -->
-            <select name="sort" onchange="this.form.submit()" 
-                    class="px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]">
-                <option value="newest" {{ request('sort', 'newest') == 'newest' ? 'selected' : '' }}>Terbaru</option>
-                <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Terlama</option>
-                <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>Nama A-Z</option>
-                <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Termurah</option>
-                <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Termahal</option>
-            </select>
+                <!-- Sort Dropdown -->
+                <select name="sort" onchange="this.form.submit()" 
+                        class="h-10 px-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white flex-1 lg:flex-none lg:w-[130px]">
+                    <option value="newest" {{ request('sort', 'newest') == 'newest' ? 'selected' : '' }}>Terbaru</option>
+                    <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Terlama</option>
+                    <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>Nama A-Z</option>
+                    <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Termurah</option>
+                    <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Termahal</option>
+                </select>
+            </div>
 
-            <!-- Search Button -->
-            <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-                Cari
-            </button>
-
-            <!-- Reset Button (if filters active) -->
-            @if(request()->hasAny(['search', 'category', 'sort']))
-            <a href="{{ route('admin.menu.index') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-semibold transition flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-                Reset
-            </a>
-            @endif
-
-            <!-- View Mode Toggles -->
-            <div class="flex border border-gray-200 rounded-lg overflow-hidden ml-auto">
-                <button type="button" @click="viewMode = 'grid'" 
-                        :class="viewMode === 'grid' ? 'bg-orange-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
-                        class="p-2.5 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+            <!-- Actions Group (Reset + View Toggles) - Hidden by default on mobile, shown after search -->
+            <div class="flex gap-2 order-2 lg:order-3 lg:flex-none absolute right-3 top-3 lg:relative lg:right-auto lg:top-auto">
+                <!-- Reset Button (if filters active) -->
+                @if(request()->hasAny(['search', 'category', 'sort']))
+                <a href="{{ route('admin.menu.index') }}" class="h-10 w-10 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition" title="Reset Filter">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
-                </button>
-                <button type="button" @click="viewMode = 'list'" 
-                        :class="viewMode === 'list' ? 'bg-orange-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
-                        class="p-2.5 transition border-l border-gray-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                    </svg>
-                </button>
+                </a>
+                @endif
+
+                <!-- View Mode Toggles -->
+                <div class="flex border border-gray-200 rounded-lg overflow-hidden">
+                    <button type="button" @click="viewMode = 'grid'" 
+                            :class="viewMode === 'grid' ? 'bg-orange-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+                            class="h-10 w-10 flex items-center justify-center transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                        </svg>
+                    </button>
+                    <button type="button" @click="viewMode = 'list'" 
+                            :class="viewMode === 'list' ? 'bg-orange-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+                            class="h-10 w-10 flex items-center justify-center transition border-l border-gray-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </form>
     </div>
