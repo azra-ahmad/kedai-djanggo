@@ -12,12 +12,49 @@ use Intervention\Image\Drivers\Gd\Driver;
 class MenuController extends Controller
 {
     /**
-     * Display menu list
+     * Display menu list with search, filter, and sort
      */
-    public function index()
+    public function index(Request $request)
     {
-        $menus = Menu::orderBy('kategori_menu')->orderBy('nama_menu')->get();
-        return view('admin.menu.index', compact('menus'));
+        $query = Menu::query();
+        
+        // Search by name
+        if ($request->filled('search')) {
+            $query->where('nama_menu', 'like', '%' . $request->search . '%');
+        }
+        
+        // Filter by category
+        if ($request->filled('category')) {
+            $query->where('kategori_menu', $request->category);
+        }
+        
+        // Sorting
+        switch ($request->get('sort', 'newest')) {
+            case 'price_asc':
+                $query->orderBy('harga', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('harga', 'desc');
+                break;
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'name_asc':
+                $query->orderBy('nama_menu', 'asc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+        
+        // Get all categories for filter dropdown
+        $categories = Menu::select('kategori_menu')->distinct()->pluck('kategori_menu');
+        
+        // Paginate and preserve query params
+        $menus = $query->paginate(12)->appends($request->query());
+        
+        return view('admin.menu.index', compact('menus', 'categories'));
     }
 
     /**
@@ -39,6 +76,7 @@ class MenuController extends Controller
             'harga' => 'required|numeric|min:0',
             'gambar' => 'required|image|mimes:jpeg,jpg,png,webp|max:2048',
             'description' => 'nullable|string',
+            'is_available' => 'boolean',
         ], [
             'nama_menu.required' => 'Nama menu harus diisi',
             'kategori_menu.required' => 'Kategori harus dipilih',
@@ -51,6 +89,9 @@ class MenuController extends Controller
             'gambar.mimes' => 'Format gambar harus JPEG, JPG, PNG, atau WebP',
             'gambar.max' => 'Ukuran gambar maksimal 2MB',
         ]);
+        
+        // Handle is_available checkbox (default true if not in request)
+        $validated['is_available'] = $request->boolean('is_available', true);
         
         // Upload and normalize image
         if ($request->hasFile('gambar')) {
@@ -87,6 +128,7 @@ class MenuController extends Controller
             'harga' => 'required|numeric|min:0',
             'gambar' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
             'description' => 'nullable|string',
+            'is_available' => 'boolean',
         ], [
             'nama_menu.required' => 'Nama menu harus diisi',
             'kategori_menu.required' => 'Kategori harus dipilih',
@@ -98,6 +140,9 @@ class MenuController extends Controller
             'gambar.mimes' => 'Format gambar harus JPEG, JPG, PNG, atau WebP',
             'gambar.max' => 'Ukuran gambar maksimal 2MB',
         ]);
+        
+        // Handle is_available checkbox
+        $validated['is_available'] = $request->boolean('is_available');
         
         // Upload file baru jika ada
         if ($request->hasFile('gambar')) {
