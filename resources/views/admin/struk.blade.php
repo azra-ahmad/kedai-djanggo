@@ -4,122 +4,382 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Struk - {{ $order->midtrans_order_id }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; }
+        /* ================================================
+           THERMAL RECEIPT - Light/Classic Style
+           Optimized for 58mm/80mm thermal paper
+           ================================================ */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #000;
+            background: #f3f4f6; /* Light gray */
+            min-height: 100vh;
+            padding: 24px 16px 100px 16px;
+        }
+
+        /* Receipt Container */
+        .receipt-container {
+            max-width: 380px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 24px 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding-bottom: 12px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 11px;
+            color: #555;
+            margin: 2px 0;
+        }
+
+        /* Dashed Separator */
+        .separator {
+            text-align: center;
+            font-size: 11px;
+            letter-spacing: -0.5px;
+            color: #333;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+
+        /* Info Section */
+        .info-section {
+            padding: 8px 0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            padding: 3px 0;
+        }
+
+        .info-row .label {
+            color: #666;
+        }
+
+        .info-row .value {
+            font-weight: 600;
+            color: #000;
+            text-align: right;
+        }
+
+        /* Items Table */
+        .items-section {
+            padding: 8px 0;
+        }
+
+        .items-header {
+            display: flex;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-bottom: 1px solid #000;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+        }
+
+        .items-header .col-item { flex: 1; }
+        .items-header .col-qty { width: 40px; text-align: center; }
+        .items-header .col-price { width: 80px; text-align: right; }
+
+        .item-row {
+            display: flex;
+            font-size: 11px;
+            padding: 4px 0;
+            align-items: flex-start;
+        }
+
+        .item-row .col-item {
+            flex: 1;
+            word-break: break-word;
+            padding-right: 8px;
+        }
+
+        .item-row .col-qty {
+            width: 40px;
+            text-align: center;
+        }
+
+        .item-row .col-price {
+            width: 80px;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        /* Total Section */
+        .total-section {
+            padding: 12px 0;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px dashed #ccc;
+        }
+
+        .status-badge {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border: 1px solid #333;
+            letter-spacing: 0.5px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding-top: 12px;
+        }
+
+        .footer .thanks {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .footer .tagline {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .footer .timestamp {
+            font-size: 9px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        /* ================================================
+           FLOATING ACTION BAR (Screen Only)
+           ================================================ */
+        .floating-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-back {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-back:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-print {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+        }
+
+        .btn-print:hover {
+            background: linear-gradient(135deg, #ea580c, #dc2626);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+        }
+
+        /* ================================================
+           PRINT STYLING
+           ================================================ */
         @media print {
-            .no-print { display: none !important; }
-            body { margin: 0; padding: 20px; }
-            .struk { box-shadow: none !important; }
+            @page {
+                size: 78mm auto;
+                margin: 0;
+            }
+
+            html, body {
+                width: 78mm;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+            }
+
+            .receipt-container {
+                width: 100%;
+                max-width: none;
+                margin: 0;
+                padding: 3mm;
+                box-shadow: none !important;
+                border-radius: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            /* Force black text for thermal printers */
+            * {
+                color: #000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .status-badge {
+                border-color: #000 !important;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="max-w-md mx-auto my-8">
-        <!-- Print Button -->
-        <button onclick="window.print()" class="no-print w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-lg font-semibold mb-4">
-            🖨️ Print Struk
-        </button>
+<body>
+    <!-- Receipt Paper -->
+    <div class="receipt-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>KEDAI DJANGGO</h1>
+            <p>Jl. Contoh No. 123, Kota</p>
+            <p>Telp: 0812-3456-7890</p>
+        </div>
 
-        <!-- Struk -->
-        <div class="struk bg-white shadow-lg" style="font-family: 'Courier New', monospace;">
-            <!-- Header -->
-            <div class="text-center border-b-2 border-dashed border-gray-300 pb-4 px-6 pt-6">
-                <h1 class="text-2xl font-bold">KEDAI DJANGGO</h1>
-                <p class="text-sm text-gray-600">Jl. Contoh No. 123, Kota</p>
-                <p class="text-sm text-gray-600">Telp: 0812-3456-7890</p>
+        <div class="separator">- - - - - - - - - - - - - - - - - - - - - -</div>
+
+        <!-- Order Info -->
+        <div class="info-section">
+            <div class="info-row">
+                <span class="label">No. Order</span>
+                <span class="value">{{ $order->midtrans_order_id }}</span>
             </div>
-
-            <!-- Order Info -->
-            <div class="px-6 py-4 border-b-2 border-dashed border-gray-300">
-                <div class="flex justify-between text-sm mb-1">
-                    <span class="font-semibold">Order ID:</span>
-                    <span class="font-mono">{{ $order->midtrans_order_id }}</span>
-                </div>
-                <div class="flex justify-between text-sm mb-1">
-                    <span class="font-semibold">Tanggal:</span>
-                    <span>{{ $order->created_at->format('d/m/Y H:i') }}</span>
-                </div>
-                <div class="flex justify-between text-sm mb-1">
-                    <span class="font-semibold">Customer:</span>
-                    <span>{{ $order->customer->name }}</span>
-                </div>
-                <div class="flex justify-between text-sm mb-1">
-                    <span class="font-semibold">Phone:</span>
-                    <span>{{ $order->customer->phone }}</span>
-                </div>
-                @if($order->admin_id)
-                <div class="flex justify-between text-sm">
-                    <span class="font-semibold">Served by:</span>
-                    <span>{{ $order->admin->name }}</span>
-                </div>
-                @endif
+            <div class="info-row">
+                <span class="label">Tanggal</span>
+                <span class="value">{{ $order->created_at->format('d/m/Y H:i') }}</span>
             </div>
-
-            <!-- Items -->
-            <div class="px-6 py-4 border-b-2 border-dashed border-gray-300">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="text-left py-2">Item</th>
-                            <th class="text-center py-2">Qty</th>
-                            <th class="text-right py-2">Harga</th>
-                            <th class="text-right py-2">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($order->orderItems as $item)
-                            <tr class="border-b">
-                                <td class="py-2">{{ $item->menu->nama_menu }}</td>
-                                <td class="text-center py-2">{{ $item->jumlah }}</td>
-                                <td class="text-right py-2">{{ number_format($item->menu->harga, 0) }}</td>
-                                <td class="text-right py-2 font-semibold">{{ number_format($item->subtotal, 0) }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <div class="info-row">
+                <span class="label">Customer</span>
+                <span class="value">{{ $order->customer->name }}</span>
             </div>
-
-            <!-- Total -->
-            <div class="px-6 py-4 border-b-2 border-dashed border-gray-300">
-                <div class="flex justify-between text-lg font-bold">
-                    <span>TOTAL:</span>
-                    <span>Rp {{ number_format($order->total_harga, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex justify-between text-sm mt-2">
-                    <span>Status:</span>
-                    <span class="font-semibold uppercase
-                        @if($order->status == 'paid') text-green-600
-                        @elseif($order->status == 'pending') text-yellow-600
-                        @elseif($order->status == 'done') text-blue-600
-                        @else text-red-600
-                        @endif">
-                        {{ $order->status }}
-                    </span>
-                </div>
+            <div class="info-row">
+                <span class="label">No. HP</span>
+                <span class="value">{{ $order->customer->phone }}</span>
             </div>
+            @if($order->admin_id && $order->admin)
+            <div class="info-row">
+                <span class="label">Kasir</span>
+                <span class="value">{{ $order->admin->name }}</span>
+            </div>
+            @endif
+        </div>
 
-            <!-- Footer -->
-            <div class="text-center px-6 py-4">
-                <p class="text-sm text-gray-600 mb-2">Terima kasih atas kunjungan Anda!</p>
-                <p class="text-xs text-gray-500">Struk ini adalah bukti pembayaran yang sah</p>
-                <div class="mt-4 text-xs text-gray-400">
-                    <p>Powered by Kedai Djanggo POS System</p>
-                    <p>{{ now()->format('d M Y H:i:s') }}</p>
-                </div>
+        <div class="separator">- - - - - - - - - - - - - - - - - - - - - -</div>
+
+        <!-- Items -->
+        <div class="items-section">
+            <div class="items-header">
+                <span class="col-item">Item</span>
+                <span class="col-qty">Qty</span>
+                <span class="col-price">Subtotal</span>
+            </div>
+            @foreach($order->orderItems as $item)
+            <div class="item-row">
+                <span class="col-item">{{ $item->menu->nama_menu }}</span>
+                <span class="col-qty">{{ $item->jumlah }}</span>
+                <span class="col-price">{{ number_format($item->subtotal, 0, ',', '.') }}</span>
+            </div>
+            @endforeach
+        </div>
+
+        <div class="separator">- - - - - - - - - - - - - - - - - - - - - -</div>
+
+        <!-- Total -->
+        <div class="total-section">
+            <div class="total-row">
+                <span>TOTAL</span>
+                <span>Rp {{ number_format($order->total_harga, 0, ',', '.') }}</span>
+            </div>
+            <div class="status-row">
+                <span>Status Pembayaran</span>
+                <span class="status-badge">{{ strtoupper($order->status) }}</span>
             </div>
         </div>
 
-        <!-- Back Button -->
-        <button onclick="window.close()" class="no-print w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold mt-4">
-            ← Kembali
+        <div class="separator">- - - - - - - - - - - - - - - - - - - - - -</div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="thanks">Terima Kasih!</p>
+            <p class="tagline">Atas Kunjungan Anda di Kedai Djanggo</p>
+            <div class="separator">- - - - - - - - - - - - - - - - - - - - - -</div>
+            <p class="timestamp">Dicetak: {{ now()->format('d M Y H:i:s') }}</p>
+        </div>
+    </div>
+
+    <!-- Floating Action Bar -->
+    <div class="floating-actions no-print" style="z-index: 50;"> 
+        <a href="{{ route('admin.orders') }}" class="btn btn-back">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Kembali
+        </a>
+
+        <button class="btn btn-print" onclick="window.print()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+            </svg>
+            Print Now
         </button>
     </div>
 
     <script>
-        // Auto print on load (optional)
-        // window.onload = function() { window.print(); }
+        // Optional: Uncomment to auto-print
+        // window.onload = function() { setTimeout(window.print, 300); };
     </script>
 </body>
 </html>
