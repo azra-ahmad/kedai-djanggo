@@ -81,6 +81,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     
     // Financial Report
     Route::get('/financial', [Admin\ReportController::class, 'financial'])->name('financial');
+    Route::get('/financial/export', [Admin\ReportController::class, 'exportExcel'])->name('financial.export');
     Route::post('/expense', [Admin\ReportController::class, 'storeExpense'])->name('expense.store');
     Route::delete('/expense/{id}', [Admin\ReportController::class, 'destroyExpense'])->name('expense.destroy');
 
