@@ -59,35 +59,56 @@ if (app()->environment('local')) {
 // ============================================================================
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    // Dashboard
-    Route::get('/dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/check-new-orders', [Admin\DashboardController::class, 'checkNewOrders'])->name('check.orders');
-    
-    // Orders Management
-    Route::get('/orders', [Admin\OrderController::class, 'index'])->name('orders');
-    Route::post('/order/{id}/assign', [Admin\OrderController::class, 'assign'])->name('assign');
-    Route::post('/order/{id}/complete', [Admin\OrderController::class, 'complete'])->name('complete');
-    Route::post('/order/{id}/fail', [Admin\OrderController::class, 'fail'])->name('fail');
-    Route::get('/order/{id}/struk', [Admin\OrderController::class, 'receipt'])->name('struk');
-    
-    // Menu CRUD
-    Route::get('/menu', [Admin\MenuController::class, 'index'])->name('menu.index');
-    Route::get('/menu/create', [Admin\MenuController::class, 'create'])->name('menu.create');
-    Route::post('/menu', [Admin\MenuController::class, 'store'])->name('menu.store');
-    Route::get('/menu/{id}/edit', [Admin\MenuController::class, 'edit'])->name('menu.edit');
-    Route::put('/menu/{id}', [Admin\MenuController::class, 'update'])->name('menu.update');
-    Route::delete('/menu/{id}', [Admin\MenuController::class, 'destroy'])->name('menu.destroy');
-    Route::patch('/menu/{menu}/toggle', [Admin\MenuController::class, 'toggleAvailability'])->name('menu.toggle');
-    
-    // Financial Report
-    Route::get('/financial', [Admin\ReportController::class, 'financial'])->name('financial');
-    Route::get('/financial/export', [Admin\ReportController::class, 'exportExcel'])->name('financial.export');
-    Route::post('/expense', [Admin\ReportController::class, 'storeExpense'])->name('expense.store');
-    Route::delete('/expense/{id}', [Admin\ReportController::class, 'destroyExpense'])->name('expense.destroy');
+    // ========================================================================
+    // LOCK SCREEN ROUTES (exempt from active_cashier middleware)
+    // ========================================================================
+    Route::get('/lock-screen', [Admin\LockScreenController::class, 'show'])->name('lock-screen');
+    Route::post('/unlock', [Admin\LockScreenController::class, 'unlock'])->name('unlock');
+    Route::post('/lock', [Admin\LockScreenController::class, 'lock'])->name('lock');
 
-    // Profile
-    Route::get('/profile', [Admin\ProfileController::class, 'show'])->name('profile');
-    Route::put('/profile', [Admin\ProfileController::class, 'update'])->name('profile.update');
+    // ========================================================================
+    // EMPLOYEE MANAGEMENT (exempt from active_cashier for initial setup)
+    // ========================================================================
+    Route::get('/employees', [Admin\EmployeeController::class, 'index'])->name('employees.index');
+    Route::post('/employees', [Admin\EmployeeController::class, 'store'])->name('employees.store');
+    Route::put('/employees/{id}', [Admin\EmployeeController::class, 'update'])->name('employees.update');
+    Route::delete('/employees/{id}', [Admin\EmployeeController::class, 'destroy'])->name('employees.destroy');
+    Route::patch('/employees/{id}/toggle', [Admin\EmployeeController::class, 'toggleStatus'])->name('employees.toggle');
+
+    // ========================================================================
+    // PROTECTED ADMIN ROUTES (requires active cashier session)
+    // ========================================================================
+    Route::middleware(['active_cashier'])->group(function () {
+        // Dashboard
+        Route::get('/dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/check-new-orders', [Admin\DashboardController::class, 'checkNewOrders'])->name('check.orders');
+        
+        // Orders Management
+        Route::get('/orders', [Admin\OrderController::class, 'index'])->name('orders');
+        Route::post('/order/{id}/assign', [Admin\OrderController::class, 'assign'])->name('assign');
+        Route::post('/order/{id}/complete', [Admin\OrderController::class, 'complete'])->name('complete');
+        Route::post('/order/{id}/fail', [Admin\OrderController::class, 'fail'])->name('fail');
+        Route::get('/order/{id}/struk', [Admin\OrderController::class, 'receipt'])->name('struk');
+        
+        // Menu CRUD
+        Route::get('/menu', [Admin\MenuController::class, 'index'])->name('menu.index');
+        Route::get('/menu/create', [Admin\MenuController::class, 'create'])->name('menu.create');
+        Route::post('/menu', [Admin\MenuController::class, 'store'])->name('menu.store');
+        Route::get('/menu/{id}/edit', [Admin\MenuController::class, 'edit'])->name('menu.edit');
+        Route::put('/menu/{id}', [Admin\MenuController::class, 'update'])->name('menu.update');
+        Route::delete('/menu/{id}', [Admin\MenuController::class, 'destroy'])->name('menu.destroy');
+        Route::patch('/menu/{menu}/toggle', [Admin\MenuController::class, 'toggleAvailability'])->name('menu.toggle');
+        
+        // Financial Report
+        Route::get('/financial', [Admin\ReportController::class, 'financial'])->name('financial');
+        Route::get('/financial/export', [Admin\ReportController::class, 'exportExcel'])->name('financial.export');
+        Route::post('/expense', [Admin\ReportController::class, 'storeExpense'])->name('expense.store');
+        Route::delete('/expense/{id}', [Admin\ReportController::class, 'destroyExpense'])->name('expense.destroy');
+
+        // Profile
+        Route::get('/profile', [Admin\ProfileController::class, 'show'])->name('profile');
+        Route::put('/profile', [Admin\ProfileController::class, 'update'])->name('profile.update');
+    });
 });
 
 // ============================================================================

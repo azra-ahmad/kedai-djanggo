@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'active_cashier' => \App\Http\Middleware\ActiveCashierMiddleware::class,
         ]);
 
         // TRUST PROXIES (Required for ngrok/LB)

@@ -309,12 +309,15 @@
                 <span class="label">No. HP</span>
                 <span class="value">{{ $order->customer->phone }}</span>
             </div>
-            @if($order->admin_id && $order->admin)
+            @php
+                // Get cashier name: Active Employee > Order Admin > Auth User
+                $cashierName = session('active_employee.name') 
+                    ?? ($order->admin->name ?? (auth()->user()->name ?? 'Admin'));
+            @endphp
             <div class="info-row">
                 <span class="label">Kasir</span>
-                <span class="value">{{ $order->admin->name }}</span>
+                <span class="value">{{ $cashierName }}</span>
             </div>
-            @endif
         </div>
 
         <div class="separator">- - - - - - - - - - - - - - - - - - - - - -</div>
