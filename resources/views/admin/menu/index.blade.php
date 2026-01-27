@@ -11,9 +11,7 @@
             <p class="text-gray-500 text-sm">{{ $menus->total() }} menu items</p>
         </div>
         <a href="{{ route('admin.menu.create') }}" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
+            <i class="ri-add-line text-xl"></i>
             Add Menu
         </a>
     </div>
@@ -24,9 +22,7 @@
             
             <!-- Search Input (Grows on desktop) -->
             <div class="relative flex-1 order-1">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
+                <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                 <input type="text" name="search" value="{{ request('search') }}" 
                        placeholder="Cari menu..." 
                        class="w-full h-10 pl-9 pr-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
@@ -39,6 +35,7 @@
                         class="h-10 px-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white flex-1 lg:flex-none lg:w-[150px]">
                     <option value="">Semua Kategori</option>
                     @foreach($categories as $cat)
+                        @continue($cat === 'dessert')
                         <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>
                             {{ ucfirst($cat) }}
                         </option>
@@ -61,9 +58,7 @@
                 <!-- Reset Button (if filters active) -->
                 @if(request()->hasAny(['search', 'category', 'sort']))
                 <a href="{{ route('admin.menu.index') }}" class="h-10 w-10 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition" title="Reset Filter">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
+                    <i class="ri-refresh-line"></i>
                 </a>
                 @endif
 
@@ -72,16 +67,12 @@
                     <button type="button" @click="viewMode = 'grid'" 
                             :class="viewMode === 'grid' ? 'bg-orange-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
                             class="h-10 w-10 flex items-center justify-center transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                        </svg>
+                        <i class="ri-layout-grid-line"></i>
                     </button>
                     <button type="button" @click="viewMode = 'list'" 
                             :class="viewMode === 'list' ? 'bg-orange-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
                             class="h-10 w-10 flex items-center justify-center transition border-l border-gray-200">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                        </svg>
+                        <i class="ri-list-check"></i>
                     </button>
                 </div>
             </div>
@@ -141,15 +132,11 @@
                         <div class="flex gap-2">
                             <a href="{{ route('admin.menu.edit', $menu->id) }}" 
                                class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                </svg>
+                                <i class="ri-pencil-line"></i>
                             </a>
                             <button @click="openDeleteModal('Hapus {{ $menu->nama_menu }}?', 'Menu ini akan dihapus permanen.', {{ $menu->id }})" 
                                     class="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition transform active:scale-95">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
+                                <i class="ri-delete-bin-line"></i>
                             </button>
                         </div>
                     </div>
@@ -158,9 +145,7 @@
         @empty
             <div class="col-span-full bg-white rounded-2xl border border-gray-100 p-12 text-center">
                 <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
+                    <i class="ri-search-2-line text-4xl text-gray-400"></i>
                 </div>
                 <h3 class="text-lg font-bold text-gray-900 mb-2">Tidak ada menu ditemukan</h3>
                 <p class="text-gray-500 text-sm mb-4">Coba ubah filter atau kata kunci pencarian</p>
@@ -234,15 +219,11 @@
                             <div class="flex justify-center gap-2">
                                 <a href="{{ route('admin.menu.edit', $menu->id) }}" 
                                    class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                    </svg>
+                                    <i class="ri-pencil-line"></i>
                                 </a>
                                 <button @click="openDeleteModal('Hapus {{ $menu->nama_menu }}?', 'Menu ini akan dihapus permanen.', {{ $menu->id }})" 
                                         class="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition transform active:scale-95">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                    </svg>
+                                    <i class="ri-delete-bin-line"></i>
                                 </button>
                             </div>
                         </td>
@@ -251,9 +232,7 @@
                     <tr>
                         <td colspan="5" class="py-12 text-center">
                             <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                </svg>
+                                <i class="ri-search-2-line text-2xl text-gray-400"></i>
                             </div>
                             <h3 class="text-base font-bold text-gray-900 mb-1">Tidak ada menu ditemukan</h3>
                             <p class="text-gray-500 text-sm">Coba ubah filter atau kata kunci pencarian</p>
@@ -286,19 +265,14 @@
         <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-red-100 transform transition-all"
             x-transition>
             <div class="w-16 h-16 bg-gradient-to-br from-red-500 to-rose-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white shadow-lg">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
+                <i class="ri-delete-bin-line text-3xl"></i>
             </div>
             <h3 class="text-xl font-bold text-gray-900 text-center mb-2" x-text="deleteTitle"></h3>
             <p class="text-sm text-gray-600 text-center mb-6" x-text="deleteMessage"></p>
             <div class="flex gap-3">
                 <button @click="confirmDelete()" 
                         class="flex-1 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white py-3 rounded-xl font-bold shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
+                    <i class="ri-delete-bin-line"></i>
                     Hapus
                 </button>
                 <button @click="deleteModal = false" 

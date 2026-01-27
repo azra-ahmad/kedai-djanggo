@@ -67,7 +67,7 @@
             <div class="px-5 md:px-8 py-6" x-show="!loading">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        Menu Pilihan
+                        <span x-text="pageTitle">Menu Pilihan</span>
                         <span class="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full hidden md:inline-block">Update Terbaru</span>
                     </h2>
                     
@@ -131,13 +131,20 @@
             // Computed property simulation for filtered count
             get filteredCount() {
                 if (this.currentCategory === 'all') return {{ $menus->count() }};
-                // This is a rough client-side estimate, ideally backend filtered or use DOM counting
-                // Since we use x-show on cards, we can't easily count hidden DOM elements responsively without more logic
-                // For now, let's just return a generic text or implement a better counter if needed.
-                // Simple workaround: count based on data available in specific implementation
                 return document.querySelectorAll('.menu-card[style*="display: none"]').length > 0 
                        ? document.querySelectorAll('.menu-card:not([style*="display: none"])').length 
                        : {{ $menus->count() }}; 
+            },
+
+            get pageTitle() {
+                switch(this.currentCategory) {
+                    case 'all': return 'Semua Menu';
+                    case 'kopi': return 'Aneka Kopi';
+                    case 'minuman': return 'Minuman Segar';
+                    case 'makanan': return 'Makanan Berat';
+                    case 'cemilan': return 'Cemilan & Dessert';
+                    default: return 'Menu Kedai';
+                }
             },
 
             init() {

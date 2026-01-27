@@ -7,6 +7,7 @@
     <title>@yield('title', 'Admin') - Kedai Djanggo</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @stack('styles')
     @stack('head-scripts')
@@ -19,9 +20,7 @@
             <!-- Hamburger Button -->
             <button @click="sidebarOpen = !sidebarOpen" 
                     class="p-2 rounded-lg text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
+                <i class="ri-menu-line text-2xl"></i>
             </button>
             
             <!-- Logo (Mobile) -->
@@ -68,15 +67,11 @@
              x-transition>
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <i class="ri-checkbox-circle-line text-xl text-emerald-600"></i>
                 </div>
                 <span class="font-semibold">{{ session('success') }}</span>
                 <button @click="show = false" class="ml-2 text-emerald-600 hover:text-emerald-800">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <i class="ri-close-line"></i>
                 </button>
             </div>
         </div>
@@ -90,15 +85,11 @@
              x-transition>
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <i class="ri-error-warning-line text-xl text-red-600"></i>
                 </div>
                 <span class="font-semibold">{{ session('error') }}</span>
                 <button @click="show = false" class="ml-2 text-red-600 hover:text-red-800">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <i class="ri-close-line"></i>
                 </button>
             </div>
         </div>

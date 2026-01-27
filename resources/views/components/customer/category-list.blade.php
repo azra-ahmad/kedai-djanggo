@@ -27,9 +27,7 @@
                     $iconClass = 'ri-goblet-line';
                 } elseif (str_contains($catLower, 'makan') || str_contains($catLower, 'nasi') || str_contains($catLower, 'mie')) {
                     $iconClass = 'ri-restaurant-2-line';
-                } elseif (str_contains($catLower, 'cemil') || str_contains($catLower, 'snack')) {
-                    $iconClass = 'ri-cookie-2-line';
-                } elseif (str_contains($catLower, 'dessert') || str_contains($catLower, 'manis')) {
+                } elseif (str_contains($catLower, 'cemil') || str_contains($catLower, 'snack') || str_contains($catLower, 'dessert')) {
                     $iconClass = 'ri-cake-3-line';
                 } elseif (str_contains($catLower, 'promo') || str_contains($catLower, 'diskon')) {
                     $iconClass = 'ri-fire-line';

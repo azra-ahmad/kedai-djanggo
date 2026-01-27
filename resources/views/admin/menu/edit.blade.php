@@ -15,9 +15,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <a href="{{ route('admin.menu.index') }}" class="p-2 text-gray-500 hover:text-gray-700 hover:bg-white rounded-lg transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
+                    <i class="ri-arrow-left-line text-xl"></i>
                 </a>
                 <div>
                     <h1 class="text-xl font-bold text-gray-900">Edit Menu</h1>
@@ -25,13 +23,31 @@
                 </div>
             </div>
             <div class="flex gap-3">
+                <!-- Status Toggle -->
+                <div class="flex items-center gap-3">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="hidden" name="is_available" value="0" form="menuForm">
+                        <input type="checkbox" name="is_available" value="1" x-model="isAvailable" class="sr-only peer" form="menuForm" {{ $menu->is_available ? 'checked' : '' }}>
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-300 rounded-full peer 
+                                    peer-checked:after:translate-x-full peer-checked:after:border-white 
+                                    after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                                    after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all 
+                                    peer-checked:bg-green-500">
+                        </div>
+                    </label>
+                    <span class="text-sm font-medium transition-colors" 
+                          :class="isAvailable ? 'text-green-600' : 'text-gray-500'" 
+                          x-text="isAvailable ? 'Available' : 'Unavailable'">
+                    </span>
+                </div>
+                
+                <div class="h-8 w-px bg-gray-300"></div>
+
                 <!-- Delete Button -->
                 <button type="button" 
                         onclick="if(confirm('Apakah Anda yakin ingin menghapus menu ini?')) document.getElementById('deleteForm').submit();"
                         class="px-4 py-2.5 bg-white border border-red-300 text-red-600 rounded-lg font-semibold text-sm hover:bg-red-50 transition flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
+                    <i class="ri-delete-bin-line"></i>
                     <span class="hidden sm:inline">Delete</span>
                 </button>
                 <!-- Cancel Button -->
@@ -40,9 +56,7 @@
                 </a>
                 <!-- Save Button -->
                 <button type="submit" form="menuForm" class="px-6 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold text-sm transition flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
+                    <i class="ri-save-line text-lg"></i>
                     Save
                 </button>
             </div>
@@ -53,9 +67,7 @@
     @if($errors->any())
     <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
         <div class="flex items-start gap-3">
-            <svg class="w-5 h-5 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
+            <i class="ri-error-warning-line text-xl text-red-600 mt-0.5"></i>
             <div>
                 <h3 class="text-red-800 font-semibold mb-1">Ada masalah dengan form:</h3>
                 <ul class="list-disc list-inside text-red-700 text-sm space-y-1">
@@ -120,7 +132,7 @@
                             <div class="relative">
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">Rp</span>
                                 <input type="number" id="harga" name="harga" value="{{ old('harga', $menu->harga) }}" required min="0" step="500"
-                                    class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm"
+                                    class="w-full h-[46px] pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm"
                                     placeholder="15000">
                             </div>
                             <p class="text-gray-400 text-xs mt-1.5">Harga dalam rupiah</p>
@@ -135,13 +147,12 @@
                                 Kategori <span class="text-red-500">*</span>
                             </label>
                             <select id="kategori_menu" name="kategori_menu" required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm bg-white">
+                                class="w-full h-[46px] px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm bg-white appearance-none">
                                 <option value="">-- Pilih Kategori --</option>
-                                <option value="kopi" {{ old('kategori_menu', $menu->kategori_menu) == 'kopi' ? 'selected' : '' }}>☕ Kopi</option>
-                                <option value="minuman" {{ old('kategori_menu', $menu->kategori_menu) == 'minuman' ? 'selected' : '' }}>🥤 Minuman</option>
-                                <option value="makanan" {{ old('kategori_menu', $menu->kategori_menu) == 'makanan' ? 'selected' : '' }}>🍽️ Makanan</option>
-                                <option value="cemilan" {{ old('kategori_menu', $menu->kategori_menu) == 'cemilan' ? 'selected' : '' }}>🍪 Cemilan</option>
-                                <option value="dessert" {{ old('kategori_menu', $menu->kategori_menu) == 'dessert' ? 'selected' : '' }}>🍰 Dessert</option>
+                                <option value="kopi" {{ old('kategori_menu', $menu->kategori_menu) == 'kopi' ? 'selected' : '' }}>Kopi</option>
+                                <option value="minuman" {{ old('kategori_menu', $menu->kategori_menu) == 'minuman' ? 'selected' : '' }}>Minuman</option>
+                                <option value="makanan" {{ old('kategori_menu', $menu->kategori_menu) == 'makanan' ? 'selected' : '' }}>Makanan</option>
+                                <option value="cemilan" {{ old('kategori_menu', $menu->kategori_menu) == 'cemilan' ? 'selected' : '' }}>Cemilan</option>
                             </select>
                             <p class="text-gray-400 text-xs mt-1.5">Pilih kategori menu</p>
                             @error('kategori_menu')
@@ -171,9 +182,7 @@
                                 
                                 <!-- Overlay on Hover -->
                                 <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition flex flex-col items-center justify-center gap-1">
-                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
+                                    <i class="ri-image-edit-line text-3xl text-white"></i>
                                     <span class="text-white text-xs font-medium">Ganti Gambar</span>
                                 </div>
                                 
@@ -190,28 +199,7 @@
                     </div>
                 </div>
 
-                <!-- Availability Status Card -->
-                <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                    <h2 class="text-base font-semibold text-gray-900 mb-4">Status</h2>
-                    
-                    <div class="flex items-center justify-between p-4 rounded-lg border"
-                         :class="isAvailable ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'">
-                        <div>
-                            <p class="text-sm font-medium" :class="isAvailable ? 'text-green-800' : 'text-red-800'" x-text="isAvailable ? 'Tersedia' : 'Habis'"></p>
-                            <p class="text-xs" :class="isAvailable ? 'text-green-600' : 'text-red-600'" x-text="isAvailable ? 'Menu dapat dipesan' : 'Menu tidak ditampilkan'"></p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="hidden" name="is_available" value="0">
-                            <input type="checkbox" name="is_available" value="1" x-model="isAvailable" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 rounded-full peer 
-                                        peer-checked:after:translate-x-full peer-checked:after:border-white 
-                                        after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
-                                        after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all 
-                                        peer-checked:bg-green-500">
-                            </div>
-                        </label>
-                    </div>
-                </div>
+
             </div>
         </div>
     </form>
