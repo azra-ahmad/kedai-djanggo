@@ -26,6 +26,14 @@ class MenuController extends Controller
         $menus = Menu::all();
         $cart = session('cart', []);
 
+        // Fetch distinct categories from menus table (only available items)
+        $categories = Menu::where('is_available', true)
+            ->select('kategori_menu')
+            ->distinct()
+            ->pluck('kategori_menu')
+            ->filter() // Remove any null values
+            ->values();
+
         // Get customer from session token
         $customer = $this->getCustomerFromSession();
 
@@ -39,6 +47,6 @@ class MenuController extends Controller
             ->with('orderItems.menu')
             ->get();
 
-        return view('user.menu', compact('menus', 'cart', 'customer', 'orders'));
+        return view('user.menu', compact('menus', 'cart', 'customer', 'orders', 'categories'));
     }
 }
