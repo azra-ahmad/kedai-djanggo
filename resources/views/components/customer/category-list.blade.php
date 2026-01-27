@@ -1,21 +1,18 @@
 @props(['categories'])
 
-<!-- Category Filter List (Pill Layout) -->
-<div class="px-5 md:px-8 py-3 md:py-4 overflow-hidden">
-    <!-- Header mainly for mobile has been removed/hidden in this design request scope, 
-         but keeping it minimal if needed. User didn't ask to remove, but the design implies a cleaner scroll bar. 
-         Let's keep the scroll area clean. -->
-    
-    <div class="flex gap-4 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
+<!-- Category Filter List (Icon-Only Segmented Control) -->
+<div class="px-5 md:px-8 overflow-hidden">
+    <!-- The Track Container -->
+    <div class="bg-gray-100 p-1 rounded-2xl overflow-x-auto scrollbar-hide flex items-center justify-between md:justify-start gap-1">
         <!-- Static "ALL" Option -->
         <div @click="currentCategory = 'all'"
-            class="group flex-shrink-0 px-5 py-2.5 cursor-pointer rounded-full transition-all duration-300 flex flex-row items-center gap-2 border border-transparent"
+            title="Semua"
+            class="flex-1 md:flex-none w-14 h-12 flex items-center justify-center cursor-pointer transition-all duration-200 rounded-xl"
             :class="currentCategory === 'all' 
-                ? '!bg-[#EF7722] !text-white shadow-lg shadow-[#EF7722]/30 transform scale-105' 
-                : 'bg-[#EF7722]/10 text-[#EF7722] hover:bg-[#EF7722]/20'">
+                ? 'bg-white text-[#EF7722] shadow-sm ring-1 ring-black/5' 
+                : 'text-gray-400 hover:text-gray-600 hover:bg-white/50'">
             
-            <i class="ri-layout-grid-fill text-xl"></i>
-            <span class="text-sm font-bold whitespace-nowrap">Semua</span>
+            <i class="ri-layout-grid-fill text-2xl"></i>
         </div>
 
         <!-- Dynamic Categories -->
@@ -40,13 +37,13 @@
             @endphp
 
             <div @click="currentCategory = '{{ $category }}'"
-                class="group flex-shrink-0 px-5 py-2.5 cursor-pointer rounded-full transition-all duration-300 flex flex-row items-center gap-2 border border-transparent"
+                title="{{ ucfirst($category) }}"
+                class="flex-1 md:flex-none w-14 h-12 flex items-center justify-center cursor-pointer transition-all duration-200 rounded-xl"
                 :class="currentCategory === '{{ $category }}' 
-                    ? '!bg-[#EF7722] !text-white shadow-lg shadow-[#EF7722]/30 transform scale-105' 
-                    : 'bg-[#EF7722]/10 text-[#EF7722] hover:bg-[#EF7722]/20'">
+                    ? 'bg-white text-[#EF7722] shadow-sm ring-1 ring-black/5' 
+                    : 'text-gray-400 hover:text-gray-600 hover:bg-white/50'">
                 
-                <i class="{{ $iconClass }} text-xl"></i>
-                <span class="text-sm font-bold whitespace-nowrap">{{ ucfirst($category) }}</span>
+                <i class="{{ $iconClass }} text-2xl"></i>
             </div>
         @endforeach
     </div>
