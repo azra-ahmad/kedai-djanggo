@@ -41,7 +41,7 @@
         <div id="homeScreen" class="pb-32">
             
             <!-- STICKY CATEGORIES with Smooth Mask -->
-            <div class="sticky top-[88px] z-40 bg-white/80 backdrop-blur-md border-b border-gray-200/50 transition-all duration-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] [mask-image:linear-gradient(to_bottom,black_85%,transparent)]">
+            <div class="sticky top-[75px] z-40 bg-white/30 backdrop-blur-xl border-b border-white/20 transition-all duration-300 shadow-[0_4px_30px_-4px_rgba(0,0,0,0.05)] [mask-image:linear-gradient(to_bottom,black_85%,transparent)]">
                 <div class="max-w-7xl mx-auto">
                     <x-customer.category-list :categories="$categories" />
                 </div>

@@ -1,27 +1,21 @@
 @props(['categories'])
 
-<!-- Category Filter List -->
-<div class="px-5 md:px-8 py-4 md:py-6 overflow-hidden">
-    <!-- Header mainly for mobile -->
-    <div class="flex items-center justify-between mb-4 md:hidden">
-        <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider">Kategori</h2>
-    </div>
+<!-- Category Filter List (Pill Layout) -->
+<div class="px-5 md:px-8 py-3 md:py-4 overflow-hidden">
+    <!-- Header mainly for mobile has been removed/hidden in this design request scope, 
+         but keeping it minimal if needed. User didn't ask to remove, but the design implies a cleaner scroll bar. 
+         Let's keep the scroll area clean. -->
     
-    <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-4 -mx-5 px-5 md:mx-0 md:px-0">
+    <div class="flex gap-4 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
         <!-- Static "ALL" Option -->
         <div @click="currentCategory = 'all'"
-            class="category-card group flex-shrink-0 p-4 w-28 md:w-32 cursor-pointer rounded-2xl text-center transition-all duration-200 border flex flex-col items-center justify-center h-full"
+            class="group flex-shrink-0 px-5 py-2.5 cursor-pointer rounded-full transition-all duration-300 flex flex-row items-center gap-2 border border-transparent"
             :class="currentCategory === 'all' 
-                ? '!bg-[#EF7722] !text-white shadow-md transform scale-105 border-transparent ring-2 ring-[#EF7722] ring-offset-2' 
-                : 'bg-white text-gray-500 border-gray-100 hover:bg-gray-50 hover:text-gray-900'">
+                ? '!bg-[#EF7722] !text-white shadow-lg shadow-[#EF7722]/30 transform scale-105' 
+                : 'bg-[#EF7722]/10 text-[#EF7722] hover:bg-[#EF7722]/20'">
             
-            <div class="mb-2 transition-transform duration-200 transform group-hover:scale-110">
-                <i class="ri-layout-grid-fill text-3xl"></i>
-            </div>
-            
-            <p class="text-xs md:text-sm font-bold truncate w-full">
-               Semua
-            </p>
+            <i class="ri-layout-grid-fill text-xl"></i>
+            <span class="text-sm font-bold whitespace-nowrap">Semua</span>
         </div>
 
         <!-- Dynamic Categories -->
@@ -46,18 +40,13 @@
             @endphp
 
             <div @click="currentCategory = '{{ $category }}'"
-                class="category-card group flex-shrink-0 p-4 w-28 md:w-32 cursor-pointer rounded-2xl text-center transition-all duration-200 border flex flex-col items-center justify-center h-full"
+                class="group flex-shrink-0 px-5 py-2.5 cursor-pointer rounded-full transition-all duration-300 flex flex-row items-center gap-2 border border-transparent"
                 :class="currentCategory === '{{ $category }}' 
-                    ? '!bg-[#EF7722] !text-white shadow-md transform scale-105 border-transparent ring-2 ring-[#EF7722] ring-offset-2' 
-                    : 'bg-white text-gray-500 border-gray-100 hover:bg-gray-50 hover:text-gray-900'">
+                    ? '!bg-[#EF7722] !text-white shadow-lg shadow-[#EF7722]/30 transform scale-105' 
+                    : 'bg-[#EF7722]/10 text-[#EF7722] hover:bg-[#EF7722]/20'">
                 
-                <div class="mb-2 transition-transform duration-200 transform group-hover:scale-110">
-                    <i class="{{ $iconClass }} text-3xl"></i>
-                </div>
-                
-                <p class="text-xs md:text-sm font-bold truncate w-full">
-                   {{ ucfirst($category) }}
-                </p>
+                <i class="{{ $iconClass }} text-xl"></i>
+                <span class="text-sm font-bold whitespace-nowrap">{{ ucfirst($category) }}</span>
             </div>
         @endforeach
     </div>
