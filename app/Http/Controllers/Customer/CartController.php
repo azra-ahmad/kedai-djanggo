@@ -5,40 +5,70 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Menu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class CartController extends Controller
 {
     /**
+     * Helper: Ambil Session ID Guest
+     */
+    private function getSessionId()
+    {
+        return Session::getId();
+    }
+
+    /**
      * Get cart contents
      */
     public function index()
     {
-        $cart = Session::get('cart', []);
-        $cartItems = [];
-        
-        foreach ($cart as $menuId => $item) {
-            $cartItems[] = [
-                'id' => (int) $menuId,
-                'name' => $item['name'],
-                'price' => (float) $item['price'],
-                'quantity' => (int) $item['quantity'],
-                'image' => $item['image'],
-                'category' => $item['category'],
+        $sessionId = $this->getSessionId();
+
+        // 1. Ambil Data Mentah dari Database
+        $cartItems = DB::table('carts')
+            ->join('menus', 'carts.menu_id', '=', 'menus.id')
+            ->where('carts.session_id', $sessionId)
+            ->select(
+                'carts.id as cart_id',
+                'carts.menu_id as id',
+                'carts.quantity',
+                'carts.note',
+                'menus.nama_menu as name',
+                'menus.harga as price',
+                'menus.gambar as image_file', // ✅ FIX: Pake nama kolom asli 'gambar'
+                'menus.kategori_menu as category'
+            )
+            ->get();
+
+        // 2. Format Data (Biar Frontend Seneng)
+        $formattedCart = $cartItems->map(function($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'price' => (float) $item->price,
+                'quantity' => (int) $item->quantity,
+                // ✅ FIX: Manual bikin URL gambar (sesuaikan path storage lu)
+                'image' => asset('storage/' . $item->image_file), 
+                'category' => $item->category,
+                'note' => $item->note
             ];
-        }
-        
-        $total = array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $cart));
+        });
+
+        // 3. Hitung Total
+        $total = $formattedCart->sum(function($item) {
+            return $item['price'] * $item['quantity'];
+        });
 
         if (request()->ajax() || request()->wantsJson()) {
             return response()->json([
-                'cart' => $cartItems,
+                'cart' => $formattedCart->values()->all(), // ✅ Ensure proper JS array format
                 'total' => $total,
-                'cart_count' => array_sum(array_column($cart, 'quantity'))
+                'cart_count' => $cartItems->sum('quantity')
             ]);
         }
 
-        return view('user.cart', compact('cart', 'total'));
+        return view('user.cart', compact('formattedCart', 'total'));
     }
 
     /**
@@ -49,33 +79,47 @@ class CartController extends Controller
         $request->validate([
             'menu_id' => 'required|exists:menus,id',
             'quantity' => 'required|integer|min:1',
+            'note' => 'nullable|string|max:255'
         ]);
 
-        $cart = Session::get('cart', []);
-        $menu = Menu::findOrFail($request->menu_id);
+        $sessionId = $this->getSessionId();
+        $menuId = $request->menu_id;
+        $qty = $request->quantity;
+        $note = $request->note;
 
-        // Get full image URL using accessor
-        $imagePath = $menu->image_url;
+        // Cek item duplikat
+        $existingItem = DB::table('carts')
+            ->where('session_id', $sessionId)
+            ->where('menu_id', $menuId)
+            ->first();
 
-        if (isset($cart[$menu->id])) {
-            $cart[$menu->id]['quantity'] += $request->quantity;
+        if ($existingItem) {
+            DB::table('carts')
+                ->where('id', $existingItem->id)
+                ->update([
+                    'quantity' => $existingItem->quantity + $qty,
+                    'note' => $note ? $note : $existingItem->note, // Update note kalau ada baru
+                    'updated_at' => now()
+                ]);
         } else {
-            $cart[$menu->id] = [
-                'id' => $menu->id,
-                'name' => $menu->nama_menu,
-                'price' => $menu->harga,
-                'quantity' => $request->quantity,
-                'image' => $imagePath,
-                'category' => $menu->kategori_menu,
-            ];
+            DB::table('carts')->insert([
+                'session_id' => $sessionId,
+                'menu_id' => $menuId,
+                'quantity' => $qty,
+                'note' => $note,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
         }
 
-        Session::put('cart', $cart);
+        // Return data fresh
+        $refreshData = $this->index()->getData();
 
         return response()->json([
-            'message' => 'Added to cart',
-            'cart_count' => array_sum(array_column($cart, 'quantity')),
-            'cart' => array_values($cart)
+            'message' => 'Berhasil masuk keranjang',
+            'cart_count' => $refreshData->cart_count,
+            'cart' => $refreshData->cart,
+            'total' => $refreshData->total
         ]);
     }
 
@@ -89,23 +133,62 @@ class CartController extends Controller
             'delta' => 'required|integer',
         ]);
 
-        $cart = Session::get('cart', []);
-        $menu_id = $request->menu_id;
-        $delta = $request->delta;
+        $sessionId = $this->getSessionId();
+        
+        $item = DB::table('carts')
+            ->where('session_id', $sessionId)
+            ->where('menu_id', $request->menu_id)
+            ->first();
 
-        if (isset($cart[$menu_id])) {
-            $cart[$menu_id]['quantity'] += $delta;
-            if ($cart[$menu_id]['quantity'] <= 0) {
-                unset($cart[$menu_id]);
+        if ($item) {
+            $newQty = $item->quantity + $request->delta;
+
+            if ($newQty > 0) {
+                DB::table('carts')
+                    ->where('id', $item->id)
+                    ->update(['quantity' => $newQty, 'updated_at' => now()]);
+            } else {
+                DB::table('carts')->where('id', $item->id)->delete();
             }
         }
 
-        Session::put('cart', $cart);
+        // ✅ FIX: Build cart data directly instead of calling index()
+        $sessionId = $this->getSessionId();
+        $cartItems = DB::table('carts')
+            ->join('menus', 'carts.menu_id', '=', 'menus.id')
+            ->where('carts.session_id', $sessionId)
+            ->select(
+                'carts.menu_id as id',
+                'menus.nama_menu as name',
+                'menus.harga as price',
+                'carts.quantity',
+                'menus.gambar as image_file',
+                'menus.kategori_menu as category',
+                'carts.note'
+            )
+            ->get();
+
+        $formattedCart = $cartItems->map(function($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'price' => (float) $item->price,
+                'quantity' => (int) $item->quantity,
+                'image' => asset('storage/' . $item->image_file),
+                'category' => $item->category,
+                'note' => $item->note
+            ];
+        });
+
+        $total = $formattedCart->sum(function($item) {
+            return $item['price'] * $item['quantity'];
+        });
 
         return response()->json([
             'message' => 'Quantity updated',
-            'cart_count' => array_sum(array_column($cart, 'quantity')),
-            'cart' => array_values($cart)
+            'cart_count' => $cartItems->sum('quantity'),
+            'cart' => $formattedCart->values()->all(),
+            'total' => $total
         ]);
     }
 
@@ -114,7 +197,10 @@ class CartController extends Controller
      */
     public function clear()
     {
-        Session::forget('cart');
+        DB::table('carts')
+            ->where('session_id', $this->getSessionId())
+            ->delete();
+
         return response()->json(['message' => 'Cart cleared', 'cart_count' => 0]);
     }
 }

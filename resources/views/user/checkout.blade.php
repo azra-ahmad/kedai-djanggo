@@ -122,6 +122,7 @@
                 processing: false,
 
                 updateQuantity(menuId, delta) {
+                    console.log('updateQuantity called:', menuId, delta);
                     fetch('{{ route('cart.update') }}', {
                         method: 'POST',
                         headers: {
@@ -135,10 +136,19 @@
                     })
                     .then(r => r.json())
                     .then(data => {
+                        console.log('Cart update response:', data);
                         this.cart = data.cart || [];
                         this.calculateTotal();
+                        
+                        // If cart is empty, redirect to menu
+                        if (this.cart.length === 0) {
+                            window.location.href = '{{ route('menu.index') }}';
+                        }
                     })
-                    .catch(() => alert('Gagal update keranjang'));
+                    .catch(err => {
+                        console.error('Cart update error:', err);
+                        alert('Gagal update keranjang');
+                    });
                 },
 
                 calculateTotal() {

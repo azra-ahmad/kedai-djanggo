@@ -3,7 +3,11 @@
 @section('title', 'Kedai Djanggo - Menu')
 
 @section('content')
-<div x-data="app()" x-init="init()" class="min-h-screen bg-gradient-to-br from-white via-[#EBEBEB] to-white font-sans text-gray-900">
+<div x-data="app()" 
+     x-init="init()" 
+     @modal-add-to-cart.window="addToCart($event.detail.menuId, $event.detail.quantity, $event.detail.note)"
+     @cart-updated.window="loadCart(); detailModal = false"
+     class="min-h-screen bg-gradient-to-br from-white via-[#EBEBEB] to-white font-sans text-gray-900">
     
     <!-- Fixed Header -->
     <x-customer.header :customer="$customer" />
@@ -102,9 +106,6 @@
 
     </div> <!-- End max-w-7xl -->
 
-    <!-- Modals -->
-    <x-customer.modals />
-
     <!-- Floating Cart Pill -->
     <div class="max-w-7xl mx-auto relative">
         <x-customer.floating-cart />
@@ -112,7 +113,12 @@
 
     <!-- Bottom Navigation -->
     <x-customer.bottom-nav />
+
 </div>
+
+<!-- ✅ MODALS AT ROOT LEVEL - OUTSIDE ALL CONTAINERS -->
+<!-- This breaks free from any stacking context created by parent elements -->
+<x-customer.modals />
 
 <script>
     function app() {
@@ -122,7 +128,16 @@
             detailModal: false,
             logoutModal: false,
             showCartPanel: false,
-            currentProduct: {},
+            currentProduct: {
+                id: null,
+                name: '',
+                price: 0,
+                image: '',
+                description: '',
+                category: '',
+                quantity: 1, 
+                note: ''     
+            },
             cartCount: 0,
             currentTab: 'home',
             total: 0,
@@ -149,13 +164,39 @@
 
             init() {
                 this.loadCart();
-                window.addEventListener('cart-updated', () => {
-                    this.loadCart();
-                    this.detailModal = false;
-                });
+                // ✅ Event listeners moved to Alpine.js directives on parent div
+                // This prevents duplicate listeners on HMR reload
                 
                 // Simulate loading delay for skeleton demo
                 setTimeout(() => this.loading = false, 600);
+            },
+
+            /**
+             * ✅ EVENT LISTENER: Opens detail modal with product data
+             * Called via Alpine's @open-detail.window event from menu cards
+             */
+            openDetail(productData) {
+                this.currentProduct = {
+                    id: productData.id,
+                    name: productData.name,
+                    price: productData.price,
+                    image: productData.image,
+                    description: productData.description,
+                    category: productData.category,
+                    quantity: 1,
+                    note: ''
+                };
+                this.detailModal = true;
+                
+                // Prevent body scroll when modal is open
+                document.body.style.overflow = 'hidden';
+            },
+
+            /**
+             * ✅ CLOSE MODAL: Dispatch to modalController
+             */
+            closeDetailModal() {
+                window.dispatchEvent(new CustomEvent('close-modal'));
             },
 
             loadCart() {
@@ -187,7 +228,19 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             },
 
-            addToCart(menuId) {
+            /**
+             * ✅ ADD TO CART: Supports both quick-add and modal submission
+             * @param {number} menuId - Menu item ID
+             * @param {number} qty - Quantity to add
+             * @param {string} note - Customer notes
+             */
+            addToCart(menuId, qty = 1, note = '') {
+                // Validation
+                if(qty < 1) {
+                    this.showToast('Jumlah minimal 1', 'error');
+                    return;
+                }
+
                 fetch('{{ route('cart.add') }}', {
                     method: 'POST',
                     headers: {
@@ -197,13 +250,14 @@
                     },
                     body: JSON.stringify({
                         menu_id: menuId,
-                        quantity: 1
+                        quantity: qty,
+                        note: note
                     })
                 })
                 .then(async res => {
                     if (!res.ok) {
-                        const text = await res.text();
-                        throw new Error(res.status + ' ' + res.statusText);
+                        const errorData = await res.json();
+                        throw new Error(errorData.message || res.statusText);
                     }
                     return res.json();
                 })
@@ -212,11 +266,17 @@
                     this.cartCount = data.cart_count || 0;
                     this.total = data.total || 0;
                     window.dispatchEvent(new CustomEvent('cart-updated'));
-                    this.showToast('Berhasil ditambahkan ke keranjang!');
+                    
+                    // Show success message
+                    const itemName = this.currentProduct.name || 'Item';
+                    this.showToast(`${itemName} ditambahkan ke keranjang!`);
+                    
+                    // Close modal and restore scroll
+                    this.closeDetailModal();
                 })
                 .catch(err => {
-                    console.error(err);
-                    this.showToast('Gagal: ' + (err.message || 'Terjadi kesalahan'), 'error');
+                    console.error('Cart Error:', err);
+                    this.showToast(err.message || 'Gagal menambahkan ke keranjang', 'error');
                 });
             },
 
@@ -240,7 +300,8 @@
             },
 
             logout() {
-                this.logoutModal = true;
+                // ✅ FIX: Dispatch event to modalController scope
+                window.dispatchEvent(new CustomEvent('open-logout'));
             },
 
             confirmLogout() {
@@ -257,7 +318,8 @@
 
             showToast(message, type = 'success') {
                 const toast = document.createElement('div');
-                toast.className = `fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] px-6 py-4 rounded-2xl shadow-xl text-sm font-bold flex items-center gap-3 transition-all duration-300 ${type === 'success' ? 'bg-white text-gray-900 border-l-4 border-[#EF7722]' : 'bg-white text-red-600 border-l-4 border-red-500'}`;
+                // ✅ FIX: z-[100000] to appear ABOVE modal (z-[99999])
+                toast.className = `fixed top-6 left-1/2 transform -translate-x-1/2 z-[100000] px-6 py-4 rounded-2xl shadow-xl text-sm font-bold flex items-center gap-3 transition-all duration-300 ${type === 'success' ? 'bg-white text-gray-900 border-l-4 border-[#EF7722]' : 'bg-white text-red-600 border-l-4 border-red-500'}`;
                 toast.style.minWidth = '300px';
                 
                 // Icon based on type

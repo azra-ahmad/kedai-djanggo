@@ -33,7 +33,34 @@ class CheckoutController extends Controller
             }
         }
 
-        $cart = Session::get('cart', []);
+        // ✅ FIX: Get cart from DATABASE instead of Session
+        $sessionId = Session::getId();
+        $cartItems = \DB::table('carts')
+            ->join('menus', 'carts.menu_id', '=', 'menus.id')
+            ->where('carts.session_id', $sessionId)
+            ->select(
+                'carts.menu_id as id',
+                'carts.quantity',
+                'carts.note',
+                'menus.nama_menu as name',
+                'menus.harga as price',
+                'menus.gambar as image_file'
+            )
+            ->get();
+
+        // Convert to array format expected by view
+        $cart = [];
+        foreach ($cartItems as $item) {
+            $cart[$item->id] = [
+                'id' => $item->id,
+                'name' => $item->name,
+                'price' => (float) $item->price,
+                'quantity' => (int) $item->quantity,
+                'image' => asset('storage/' . $item->image_file),
+                'note' => $item->note
+            ];
+        }
+
         if (empty($cart)) {
             return redirect()->route('menu.index')->with('error', 'Keranjang kosong!');
         }
@@ -52,7 +79,31 @@ class CheckoutController extends Controller
      */
     public function process(Request $request)
     {
-        $cart = Session::get('cart', []);
+        // ✅ FIX: Get cart from DATABASE instead of Session
+        $sessionId = Session::getId();
+        $cartItems = \DB::table('carts')
+            ->join('menus', 'carts.menu_id', '=', 'menus.id')
+            ->where('carts.session_id', $sessionId)
+            ->select(
+                'carts.menu_id as id',
+                'carts.quantity',
+                'carts.note',
+                'menus.nama_menu as name',
+                'menus.harga as price'
+            )
+            ->get();
+
+        // Convert to array format
+        $cart = [];
+        foreach ($cartItems as $item) {
+            $cart[$item->id] = [
+                'id' => $item->id,
+                'name' => $item->name,
+                'price' => (float) $item->price,
+                'quantity' => (int) $item->quantity,
+                'note' => $item->note
+            ];
+        }
         
         // Re-validate state
         if (empty($cart)) {
@@ -141,6 +192,9 @@ class CheckoutController extends Controller
 
             $snapToken = Snap::getSnapToken($params);
             $order->update(['snap_token' => $snapToken]);
+
+            // ✅ Clear cart from database after successful order
+            \DB::table('carts')->where('session_id', $sessionId)->delete();
 
             return response()->json([
                 'status' => 'success',

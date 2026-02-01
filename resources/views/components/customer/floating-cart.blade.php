@@ -1,8 +1,9 @@
 <!-- Floating Cart Pill - Fixed above Bottom Nav -->
+<!-- ✅ FIX: z-[9999] ensures it's clickable, but below modal (z-[99999]) -->
 <a href="{{ route('checkout') }}"
     x-show="cartCount > 0"
     x-cloak
-    class="fixed bottom-[90px] left-4 right-4 z-50 bg-gradient-to-r from-[#EF7722] to-[#FAA533] text-white p-4 rounded-full shadow-xl flex items-center justify-between border border-[#EBEBEB] transition-transform active:scale-95"
+    class="fixed bottom-[90px] left-4 right-4 z-[9999] pointer-events-auto bg-gradient-to-r from-[#EF7722] to-[#FAA533] text-white p-4 rounded-full shadow-xl flex items-center justify-between border border-[#EBEBEB] transition-transform active:scale-95"
     x-transition:enter="transition ease-out duration-300"
     x-transition:enter-start="translate-y-20 opacity-0"
     x-transition:enter-end="translate-y-0 opacity-100"
