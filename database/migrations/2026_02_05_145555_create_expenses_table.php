@@ -11,8 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('menus', function (Blueprint $table) {
-            $table->boolean('is_available')->default(true)->after('description');
+        Schema::create('expenses', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->date('date');
+            $table->string('description');
+            $table->decimal('amount', 15);
+            $table->string('category')->default('operasional');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('menus', function (Blueprint $table) {
-            $table->dropColumn('is_available');
-        });
+        Schema::dropIfExists('expenses');
     }
 };
