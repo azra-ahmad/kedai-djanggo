@@ -335,6 +335,11 @@
                 <span class="col-qty">{{ $item->jumlah }}</span>
                 <span class="col-price">{{ number_format($item->subtotal, 0, ',', '.') }}</span>
             </div>
+            @if($item->note)
+            <div style="font-size: 10px; color: #666; padding-left: 8px; margin-bottom: 4px;">
+                → {{ $item->note }}
+            </div>
+            @endif
             @endforeach
         </div>
 

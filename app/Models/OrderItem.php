@@ -14,6 +14,7 @@ class OrderItem extends Model
         'menu_id',
         'jumlah',
         'subtotal',
+        'note',
     ];
 
     protected $casts = [

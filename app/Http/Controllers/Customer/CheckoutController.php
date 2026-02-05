@@ -39,6 +39,7 @@ class CheckoutController extends Controller
             ->join('menus', 'carts.menu_id', '=', 'menus.id')
             ->where('carts.session_id', $sessionId)
             ->select(
+                'carts.id as cart_id',  // Cart ID for unique identification
                 'carts.menu_id as id',
                 'carts.quantity',
                 'carts.note',
@@ -49,15 +50,17 @@ class CheckoutController extends Controller
             ->get();
 
         // Convert to array format expected by view
+        // Use cart_id as key since same menu can have different notes
         $cart = [];
         foreach ($cartItems as $item) {
-            $cart[$item->id] = [
-                'id' => $item->id,
+            $cart[] = [
+                'cart_id' => $item->cart_id,  // Unique cart item ID
+                'id' => $item->id,            // Menu ID
                 'name' => $item->name,
                 'price' => (float) $item->price,
                 'quantity' => (int) $item->quantity,
                 'image' => asset('storage/' . $item->image_file),
-                'note' => $item->note
+                'note' => $item->note ?? ''
             ];
         }
 
@@ -164,6 +167,7 @@ class CheckoutController extends Controller
                     'menu_id' => $menu_id,
                     'jumlah' => $item['quantity'],
                     'subtotal' => $item['price'] * $item['quantity'],
+                    'note' => $item['note'] ?? null, // ✅ FIX: Transfer note from cart to order
                 ]);
             }
 

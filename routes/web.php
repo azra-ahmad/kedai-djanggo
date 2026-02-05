@@ -23,6 +23,7 @@ Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
 Route::get('/cart', [Customer\CartController::class, 'index'])->name('cart.index');
 Route::post('/add-to-cart', [Customer\CartController::class, 'add'])->name('cart.add');
 Route::post('/update-quantity', [Customer\CartController::class, 'update'])->name('cart.update');
+Route::post('/update-note', [Customer\CartController::class, 'updateNote'])->name('cart.updateNote');
 Route::post('/clear-cart', [Customer\CartController::class, 'clear'])->name('cart.clear');
 
 // Checkout

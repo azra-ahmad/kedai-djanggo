@@ -245,12 +245,15 @@
                                     </button>
                                 </form>
                             </div>
-                            <div class="pt-2 border-t border-gray-50">
-                                <p class="text-[10px] text-gray-400 line-clamp-2">
-                                    @foreach($order->orderItems as $item)
-                                    {{ $item->jumlah }}x {{ $item->menu->nama_menu ?? 'Menu' }}{{ !$loop->last ? ', ' : '' }}
-                                    @endforeach
-                                </p>
+                            <div class="pt-2 border-t border-gray-50 space-y-1">
+                                @foreach($order->orderItems as $item)
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] text-gray-600 font-medium">{{ $item->jumlah }}x {{ $item->menu->nama_menu ?? 'Menu' }}</span>
+                                    @if($item->note)
+                                    <span class="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded inline-block ml-3">📝 {{ $item->note }}</span>
+                                    @endif
+                                </div>
+                                @endforeach
                             </div>
                         </div>
                         @empty

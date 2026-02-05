@@ -118,7 +118,10 @@
                         <div class="flex-1">
                             <h4 class="font-bold text-gray-900 mb-1">{{ $item->menu->nama_menu }}</h4>
                             <p class="text-sm text-gray-500 mb-1">{{ $item->jumlah }}x Rp {{ number_format($item->menu->harga, 0, ',', '.') }}</p>
-                            <p class="text-orange-600 font-semibold">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</p>
+                            @if($item->note)
+                            <p class="text-sm text-amber-600 bg-amber-50 px-2 py-1 rounded-lg inline-block mt-1">📝 {{ $item->note }}</p>
+                            @endif
+                            <p class="text-orange-600 font-semibold mt-1">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</p>
                         </div>
                     </div>
                     @endforeach

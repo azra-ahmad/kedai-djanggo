@@ -13,8 +13,17 @@
                     <span class="font-bold text-gray-900 block mb-1">Pesanan #{{ $order->midtrans_order_id }}</span>
                     <span class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($order->created_at)->format('d M Y, H:i') }}</span>
                 </div>
-                <span class="text-xs px-3 py-1.5 rounded-full font-bold {{ $order->status == 'paid' ? 'status-badge-paid' : 'status-badge-pending' }}">
-                    {{ ucfirst($order->status) }}
+                @php
+                    $statusConfig = [
+                        'pending' => ['label' => 'Menunggu', 'bg' => 'bg-yellow-100', 'text' => 'text-yellow-700'],
+                        'paid' => ['label' => 'Dibayar', 'bg' => 'bg-emerald-100', 'text' => 'text-emerald-700'],
+                        'done' => ['label' => 'Selesai', 'bg' => 'bg-blue-100', 'text' => 'text-blue-700'],
+                        'failed' => ['label' => 'Gagal', 'bg' => 'bg-red-100', 'text' => 'text-red-700'],
+                    ];
+                    $config = $statusConfig[$order->status] ?? ['label' => ucfirst($order->status), 'bg' => 'bg-gray-100', 'text' => 'text-gray-700'];
+                @endphp
+                <span class="text-xs px-3 py-1.5 rounded-full font-bold {{ $config['bg'] }} {{ $config['text'] }}">
+                    {{ $config['label'] }}
                 </span>
             </div>
             <div class="border-t-2 border-[#EBEBEB] pt-3 mt-3">

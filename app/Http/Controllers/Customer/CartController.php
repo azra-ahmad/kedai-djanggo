@@ -36,7 +36,7 @@ class CartController extends Controller
                 'carts.note',
                 'menus.nama_menu as name',
                 'menus.harga as price',
-                'menus.gambar as image_file', // ✅ FIX: Pake nama kolom asli 'gambar'
+                'menus.gambar as image_file', 
                 'menus.kategori_menu as category'
             )
             ->get();
@@ -48,7 +48,6 @@ class CartController extends Controller
                 'name' => $item->name,
                 'price' => (float) $item->price,
                 'quantity' => (int) $item->quantity,
-                // ✅ FIX: Manual bikin URL gambar (sesuaikan path storage lu)
                 'image' => asset('storage/' . $item->image_file), 
                 'category' => $item->category,
                 'note' => $item->note
@@ -85,23 +84,26 @@ class CartController extends Controller
         $sessionId = $this->getSessionId();
         $menuId = $request->menu_id;
         $qty = $request->quantity;
-        $note = $request->note;
+        $note = $request->note ?? ''; // Normalize null to empty string
 
-        // Cek item duplikat
+        // Cek item duplikat berdasarkan menu_id DAN note
+        // Same menu dengan note berbeda = item terpisah
         $existingItem = DB::table('carts')
             ->where('session_id', $sessionId)
             ->where('menu_id', $menuId)
+            ->where('note', $note)  // Note is part of unique key now
             ->first();
 
         if ($existingItem) {
+            // Same menu + same note = merge quantity
             DB::table('carts')
                 ->where('id', $existingItem->id)
                 ->update([
                     'quantity' => $existingItem->quantity + $qty,
-                    'note' => $note ? $note : $existingItem->note, // Update note kalau ada baru
                     'updated_at' => now()
                 ]);
         } else {
+            // New item (different menu OR different note)
             DB::table('carts')->insert([
                 'session_id' => $sessionId,
                 'menu_id' => $menuId,
@@ -129,15 +131,16 @@ class CartController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'menu_id' => 'required|exists:menus,id',
+            'cart_id' => 'required|integer',
             'delta' => 'required|integer',
         ]);
 
         $sessionId = $this->getSessionId();
         
+        // Find by cart_id (unique) instead of menu_id
         $item = DB::table('carts')
             ->where('session_id', $sessionId)
-            ->where('menu_id', $request->menu_id)
+            ->where('id', $request->cart_id)
             ->first();
 
         if ($item) {
@@ -202,5 +205,33 @@ class CartController extends Controller
             ->delete();
 
         return response()->json(['message' => 'Cart cleared', 'cart_count' => 0]);
+    }
+
+    /**
+     * Update note for a specific cart item
+     */
+    public function updateNote(Request $request)
+    {
+        $request->validate([
+            'cart_id' => 'required|integer',
+            'note' => 'nullable|string|max:255'
+        ]);
+
+        $updated = DB::table('carts')
+            ->where('id', $request->cart_id)
+            ->where('session_id', $this->getSessionId())
+            ->update([
+                'note' => $request->note ?? '',
+                'updated_at' => now()
+            ]);
+
+        if (!$updated) {
+            return response()->json(['message' => 'Cart item not found'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Note updated',
+            'note' => $request->note ?? ''
+        ]);
     }
 }

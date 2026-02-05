@@ -19,15 +19,15 @@
     <div class="max-w-7xl mx-auto w-full">
 
         <!-- HERO BANNER SECTION -->
-        <div class="px-5 pt-6 pb-2 md:px-8">
-            <div class="rounded-3xl overflow-hidden shadow-lg relative aspect-[21/9] md:aspect-[3/1] bg-gray-900 group cursor-pointer">
+        <!-- <div class="px-5 pt-6 pb-2 md:px-8">
+            <div class="rounded-3xl overflow-hidden shadow-lg relative aspect-[21/9] md:aspect-[3/1] bg-gray-900 group cursor-pointer"> -->
                 <!-- Background Image (Placeholder) -->
-                <img src="https://images.unsplash.com/photo-1544148103-0773bf10d330?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" 
+                <!-- <img src="https://images.unsplash.com/photo-1544148103-0773bf10d330?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" 
                      alt="Promo Banner" 
-                     class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700">
+                     class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"> -->
                 
                 <!-- Content Overlay -->
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-10">
+                <!-- <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-10">
                     <span class="inline-block px-3 py-1 bg-[#EF7722] text-white text-xs md:text-sm font-bold rounded-full w-fit mb-2">
                         PROMO SPESIAL
                     </span>
@@ -39,7 +39,7 @@
                     </p>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- HOME SCREEN -->
         <div id="homeScreen" class="pb-32">

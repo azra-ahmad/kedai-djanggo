@@ -199,12 +199,20 @@
                         <!-- Items -->
                         <td class="py-4 px-4">
                             <p class="font-semibold text-gray-900 text-sm">{{ $order->orderItems->count() }} items</p>
-                            <p class="text-xs text-gray-500 max-w-[200px] truncate">
-                                @foreach($order->orderItems->take(2) as $item)
-                                {{ $item->quantity }}x {{ $item->menu->nama_menu }}{{ !$loop->last ? ', ' : '' }}
+                            <div class="text-xs text-gray-500 max-w-[250px] space-y-0.5">
+                                @foreach($order->orderItems->take(3) as $item)
+                                <div class="flex items-start gap-1">
+                                    <span>{{ $item->quantity }}x {{ $item->menu->nama_menu }}</span>
+                                    @if($item->note)
+                                    <span class="text-amber-600 bg-amber-50 px-1 rounded text-[10px] shrink-0">📝</span>
+                                    @endif
+                                </div>
+                                @if($item->note)
+                                <p class="text-[10px] text-amber-600 pl-3 truncate" title="{{ $item->note }}">↳ {{ $item->note }}</p>
+                                @endif
                                 @endforeach
-                                @if($order->orderItems->count() > 2)...@endif
-                            </p>
+                                @if($order->orderItems->count() > 3)<span class="text-gray-400">+{{ $order->orderItems->count() - 3 }} more...</span>@endif
+                            </div>
                         </td>
                         <!-- Total -->
                         <td class="py-4 px-4">
@@ -312,9 +320,19 @@
                 <div class="space-y-2">
                     @foreach($order->orderItems as $item)
                     <div class="flex justify-between items-start">
-                        <div class="flex gap-2">
-                            <span class="font-black text-orange-600 text-lg">{{ $item->quantity }}x</span>
-                            <span class="font-bold text-gray-900 text-base">{{ $item->menu->nama_menu }}</span>
+                        <div class="flex-1">
+                            <div class="flex gap-2">
+                                <span class="font-black text-orange-600 text-lg">{{ $item->quantity }}x</span>
+                                <span class="font-bold text-gray-900 text-base">{{ $item->menu->nama_menu }}</span>
+                            </div>
+                            @if($item->note)
+                            <div class="ml-7 mt-1 text-xs text-gray-600 bg-amber-50 px-2 py-1 rounded-lg inline-flex items-center gap-1">
+                                <svg class="w-3 h-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                {{ $item->note }}
+                            </div>
+                            @endif
                         </div>
                     </div>
                     @endforeach
