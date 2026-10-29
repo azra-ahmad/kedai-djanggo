@@ -15,7 +15,7 @@ A Laravel-based QR ordering system designed for small food businesses (UMKM). Cu
 7. [Testing Strategy](#testing-strategy)
 8. [Setup Guide](#setup-guide)
 9. [Important Notes & Warnings](#important-notes--warnings)
-10. [Default Credentials](#default-credentials)
+10. [Admin Setup](#admin-setup)
 11. [Credits](#credits)
 
 ---
@@ -41,6 +41,10 @@ Kedai-Djanggo provides:
 - **Digital Payment**: Integrated Midtrans payment gateway
 - **Real-Time Order Tracking**: Customers can monitor order status
 - **Admin Dashboard**: Business owners manage orders, menus, and view reports
+
+### Operational Features
+
+The current routes also cover cashier lock/unlock sessions, employee management, menu availability, order assignment, expense entries, and financial report export. See [`routes/web.php`](routes/web.php) for the current route definitions.
 
 ### Key Features
 
@@ -216,42 +220,32 @@ Orders follow a strict state transition:
 
 ## API & Routes Overview
 
-### Public Routes (No Authentication)
+### Customer Routes
 
-| Method | Route | Controller Method | Description |
-|--------|-------|-------------------|-------------|
-| GET | `/` | `OrderController@showForm` | Customer identity form |
-| POST | `/submit-identity` | `OrderController@submitIdentity` | Submit name & phone |
-| GET | `/menu` | `MenuController@index` | Browse menu items |
-| GET | `/checkout` | `OrderController@checkout` | Checkout page |
-| POST | `/checkout/process` | `OrderController@processCheckout` | Create order + get snap token |
-| GET | `/order/status/{id}` | `OrderController@status` | Order status page |
-| GET | `/orders` | `OrderController@orders` | Customer's order history |
+| Method | Route | Controller | Purpose |
+|---|---|---|---|
+| GET / POST | `/` · `/submit-identity` | `Customer\\IdentityController` | Customer identity |
+| GET | `/menu` | `MenuController` | Browse menu |
+| GET / POST | `/cart` · `/add-to-cart` · `/update-quantity` · `/update-note` · `/clear-cart` | `Customer\\CartController` | Session cart |
+| GET / POST | `/checkout` · `/checkout/process` | `Customer\\CheckoutController` | Checkout |
+| GET | `/orders` · `/order/status/{order_id}` · `/order/{order_id}/receipt` | `Customer\\OrderController` | History, status, and receipt |
+| POST | `/order/{order_id}/cancel` | `Customer\\OrderController` | Cancel an order |
 
-### AJAX JSON Endpoints
+### Admin Routes
 
-| Method | Route | Description | Response |
-|--------|-------|-------------|----------|
-| POST | `/add-to-cart` | Add item to session cart | `{ cart_count, cart }` |
-| POST | `/update-quantity` | Increment/decrement quantity | `{ cart_count, cart }` |
-| POST | `/clear-cart` | Remove all cart items | `{ cart_count: 0 }` |
-| GET | `/cart` | Get current cart contents | `{ cart, total }` |
+Admin routes use the `/admin` prefix and authentication middleware. Dashboard, order handling, menu management, reports, expenses, and profile routes also require an active cashier session.
 
-### Admin Routes (Auth Protected)
+| Area | Routes | Controller |
+|---|---|---|
+| Cashier session | `/admin/lock-screen` · `/admin/unlock` · `/admin/lock` | `Admin\\LockScreenController` |
+| Employees | `/admin/employees` | `Admin\\EmployeeController` |
+| Dashboard | `/admin/dashboard` · `/admin/check-new-orders` | `Admin\\DashboardController` |
+| Orders | `/admin/orders` · `/admin/order/{id}/assign` · `/complete` · `/fail` · `/struk` | `Admin\\OrderController` |
+| Menu | `/admin/menu` and item create, edit, delete, availability routes | `Admin\\MenuController` |
+| Reports and expenses | `/admin/financial` · `/admin/financial/export` · `/admin/expense` | `Admin\\ReportController` |
+| Profile | `/admin/profile` | `Admin\\ProfileController` |
 
-All routes prefixed with `/admin` and protected by `auth` middleware:
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| GET | `/admin/dashboard` | Dashboard with analytics |
-| GET | `/admin/orders` | Order management list |
-| POST | `/admin/order/{id}/complete` | Mark order as done |
-| POST | `/admin/order/{id}/fail` | Mark order as failed |
-| GET | `/admin/menu` | Menu list |
-| POST | `/admin/menu` | Create new menu |
-| PUT | `/admin/menu/{id}` | Update menu item |
-| DELETE | `/admin/menu/{id}` | Delete menu item |
-| GET | `/admin/financial` | Financial reports |
+For exact methods and parameters, use [the route definitions](routes/web.php).
 
 ### Webhook Endpoint
 
@@ -363,7 +357,7 @@ Internal logic and code path verification:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/kedai-djanggo.git
+   git clone https://github.com/azra-ahmad/kedai-djanggo.git
    cd kedai-djanggo
    ```
 
@@ -493,13 +487,9 @@ Midtrans webhooks require a publicly accessible URL. Use ngrok for local testing
 
 ---
 
-## Default Credentials
+## Admin Setup
 
-**Admin Account:**
-- Email: `admin@kedai.com`
-- Password: `admin123`
-
-> Change these credentials immediately in production.
+Create a dedicated administrator account in your local environment. Configure credentials privately; this documentation does not provide a shared administrator login.
 
 ---
 
@@ -511,9 +501,7 @@ Midtrans webhooks require a publicly accessible URL. Use ngrok for local testing
 
 **Tech Stack:** Laravel 12, Alpine.js, Tailwind CSS, Midtrans
 
-**Author:** [Your Name]
-
-**Institution:** [Your University]
+**Repository:** [azra-ahmad/kedai-djanggo](https://github.com/azra-ahmad/kedai-djanggo)
 
 **Year:** 2026
 
